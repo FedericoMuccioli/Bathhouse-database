@@ -1,5 +1,8 @@
-# Mac file
+# Mac files
 .DS_Store
+
+# Word files
+~$*.docx
 
 # Compiled class file
 *.class
