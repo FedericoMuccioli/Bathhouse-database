@@ -1,5 +1,11 @@
-DB StabilimentoBalneare
+# **Beach Resort** 🏖️  ![StatusBadge](https://badgen.net/badge/Status/uncompleted/red)
 
-Per l'esecuzione dell'applicazione è necessario java e un database mySQL.
-Creare il database attraverso StabilimentoBalneare.sql, se si vuole una base di istanze eseguire anche il file Istanze.sql.
-Una volta creato il database lanciare l'applicazione java e connettersi al database inserendo root, password e infine il nome del database "StabilimentoBalneare" già settato.
+## **University project for the Database Exam**.🎓
+### The project represents the management of a hypothetical **Beach Resort**.
+
+The database used in this project has been made with *MySQL*.
+___
+
+## **NOTE**
+
+There is a **report** (in Italian) which explains in detail the organization, structure and operation of the entire project. Unfortunately the interface part of java is not loaded and the project is **still in progress for more implementations**.
