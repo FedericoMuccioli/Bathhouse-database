@@ -1,53 +1,100 @@
 package lab.view.top;
 
+
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
+
+import lab.db.Query;
 import lab.view.center.Grid;
+import lab.view.utilities.MyJDateChooser;
+
 import java.awt.GridBagLayout;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Period extends JPanel {
+	private static final String NEW_STAGIONE = "  +  ";
+	private final Query query;
+	final JComboBox<String> annoField;
+	final MyJDateChooser inizioCalendar;
+	final MyJDateChooser fineCalendar;
+	private final JLabel alert;
 	
-	public Period(final Grid grid) {
+	public Period(final Query query, final Grid grid) {
+		this.query = query;
 		setLayout(new GridBagLayout());
-		final var annoLabel = new JLabel("ANNO:");
-		final var annoField = new JTextField("2022");
+		final var annoLabel = new JLabel("Stagione:");
+		annoField = new JComboBox<String>();
 		final var inizioLabel = new JLabel("inizio:");
-		final var inizioField = new JTextField("dd/MM");
+		inizioCalendar = new MyJDateChooser(annoField);
 		final var fineLabel = new JLabel("fine:");
-		final var fineField = new JTextField("dd/MM");
+		fineCalendar = new MyJDateChooser(annoField);
 		final var button = new JButton("Aggiorna");
-		final var alert = new JLabel("");
+		alert = new JLabel("");
+		updateStagioni();
+		updateCalendar();
 		
-		button.addActionListener(l -> {
-			alert.setText("");
-			final Integer anno = Integer.parseInt(annoField.getText());
-			final Date inizio;
-			final Date fine;
-			try {
-				inizio = new SimpleDateFormat("dd/MM/yyyy").parse(inizioField.getText() + "/" + annoField.getText());
-				fine = new SimpleDateFormat("dd/MM/yyyy").parse(fineField.getText() + "/" + annoField.getText());
-				if (inizio.compareTo(fine) > 0) {
-					throw new IllegalStateException();
-				}
-			} catch (Exception e) {
-				alert.setText("Dati inseriti non validi");
-				return;
+		annoField.addActionListener((e)->{
+			String selected = (String) annoField.getSelectedItem();
+			if(selected.equals(NEW_STAGIONE)) {
+				new AddStagione(query);
+				updateStagioni();
 			}
-			grid.updateGrid(anno, inizio, fine);	
+			updateCalendar();
 		});
+		
+//		button.addActionListener(l -> {
+//			alert.setText("");
+//			final int anno = Integer.parseInt((String) annoField.getSelectedItem());
+//			final Date inizio;
+//			final Date fine;
+//			try {
+//				inizio = new SimpleDateFormat("dd/MM/yyyy").parse(inizioCalendar.getText() + "/" + annoField.getSelectedItem());
+//				fine = new SimpleDateFormat("dd/MM/yyyy").parse(fineCalendar.getText() + "/" + annoField.getSelectedItem());
+//				if (inizio.compareTo(fine) > 0) {
+//					throw new IllegalStateException();
+//				}
+//			} catch (Exception e) {
+//				alert.setText("Dati inseriti non validi");
+//				return;
+//			}
+//			grid.updateGrid(anno, inizio, fine);	
+//		});
 		
 		add(annoLabel);
 		add(annoField);
 		add(inizioLabel);
-		add(inizioField);
+		add(inizioCalendar);
 		add(fineLabel);
-		add(fineField);
+		add(fineCalendar);
 		add(button);
 		add(alert);
+	}
+	
+	private void updateStagioni() {
+		try {
+			List<String> stagioni = query.getStagioni().stream().map(Object::toString).collect(Collectors.toList());
+			stagioni.add(0, NEW_STAGIONE);
+			annoField.setModel(new DefaultComboBoxModel<String>(stagioni.toArray(new String[0])));
+			if (annoField.getItemCount() > 1) {
+				annoField.setSelectedIndex(1);
+			}
+		} catch (SQLException e1) {
+			alert.setText("Errore nel caricare le stagioni");
+		}
+	}
+	
+	private void updateCalendar() {
+		String selected = (String) annoField.getSelectedItem();
+		if (annoField.getItemCount() > 1 && !selected.equals(NEW_STAGIONE)) {
+			int year = Integer.parseInt(selected);
+			inizioCalendar.setYear(year);
+			fineCalendar.setYear(year);
+		}
 	}
 
 }

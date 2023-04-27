@@ -8,6 +8,8 @@ import java.awt.event.WindowEvent;
 import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import lab.db.Query;
 import lab.view.center.Grid;
 import lab.view.right.RightPanel;
 import lab.view.top.Period;
@@ -22,9 +24,10 @@ public class MainMenu extends JFrame {
 	}
 	
 	public void accessed(final Connection connection) {
+		final Query query = new Query(connection);
 		final JPanel panel = new JPanel(new BorderLayout());
 		final Grid centerPanel = new Grid(connection);
-		final JPanel topPanel = new Period(centerPanel);
+		final JPanel topPanel = new Period(query, centerPanel);
 		final JPanel rightPanel = new RightPanel(connection);
 		panel.add(topPanel, BorderLayout.NORTH);
 		panel.add(centerPanel, BorderLayout.CENTER);

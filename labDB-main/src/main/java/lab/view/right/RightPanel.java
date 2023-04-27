@@ -15,7 +15,6 @@ public class RightPanel extends JPanel {
 		final JButton removePostazioneOmbrellone = new JButton("Rimuovi postazione ombrellone");
 		final JButton addPostazioneSedutaRiva = new JButton("Aggiungi postazione seduta riva");
 		final JButton addBagnino = new JButton("Aggiungi bagnino");
-		final JButton addOmbrellone = new JButton("Aggiungi ombrellone");
 		final JButton addCliente = new JButton("Aggiungi cliente");
 		final JButton addStagione = new JButton("Aggiungi nuova stagione");
 		
@@ -23,9 +22,7 @@ public class RightPanel extends JPanel {
 		removePostazioneOmbrellone.addActionListener(l -> new RemovePostazioneOmbrellone(connection));
 		addPostazioneSedutaRiva.addActionListener(l -> new AddPostazioneSedutaRiva(connection));
 		addBagnino.addActionListener(l -> new AddBagnino(connection));
-		addOmbrellone.addActionListener(l -> new AddOmbrellone(connection));
 		addCliente.addActionListener(l -> new AddCliente(connection));
-		addStagione.addActionListener(l -> new AddStagione(connection));
 		
 		var c = new GridBagConstraints();
 		add(addPostazioneOmbrellone);
@@ -38,8 +35,6 @@ public class RightPanel extends JPanel {
 		c.gridy=4;
 		add(addBagnino, c);
 		c.gridy=5;
-		add(addOmbrellone, c);
-		c.gridy=6;
 		add(addStagione, c);
 	}
 
