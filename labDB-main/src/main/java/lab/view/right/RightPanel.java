@@ -6,7 +6,7 @@ import java.awt.GridBagConstraints;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import lab.view.center.AddPostazioneOmbrellone;
+import lab.view.center.AddPostazione;
 
 public class RightPanel extends JPanel {
 	

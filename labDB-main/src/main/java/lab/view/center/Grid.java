@@ -16,7 +16,6 @@ import javax.swing.JPanel;
 import lab.db.Query;
 import lab.model.PostazioneOmbrellone;
 import lab.utils.Utils;
-import lab.view.right.AddPostazioneSedutaRiva;
 
 public class Grid extends JPanel {
 
@@ -171,12 +170,12 @@ public class Grid extends JPanel {
 				b.setText("");
 				b.setOpaque(false);
 				removeAllActionListener(b);
+				final int x_ = x + 1;
+				final int y_ = y + 1;
 				if (y<10) {
-					final int x_ = x + 1;
-					final int y_ = y + 1;
-					b.addActionListener(l -> new AddPostazioneOmbrellone(connection, this, anno, y_, x_, dataInizio)); //connection -> query
+					b.addActionListener(l -> new AddPostazione(AddPostazione.Tipologia.OMBRELLONE, query, this, anno, y_, x_, dataInizio));
 				} else {
-					b.addActionListener(l -> new AddPostazioneSedutaRiva(connection, this)); //connection -> query
+					b.addActionListener(l -> new AddPostazione(AddPostazione.Tipologia.SEDUTA, query, this, anno, y_, x_, dataInizio));
 				}
 			}
 		}
