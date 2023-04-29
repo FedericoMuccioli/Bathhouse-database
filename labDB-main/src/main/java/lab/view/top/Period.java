@@ -13,6 +13,7 @@ import lab.view.utilities.MyJDateChooser;
 
 import java.awt.GridBagLayout;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,23 +48,16 @@ public class Period extends JPanel {
 			updateCalendar();
 		});
 		
-//		button.addActionListener(l -> {
-//			alert.setText("");
-//			final int anno = Integer.parseInt((String) annoField.getSelectedItem());
-//			final Date inizio;
-//			final Date fine;
-//			try {
-//				inizio = new SimpleDateFormat("dd/MM/yyyy").parse(inizioCalendar.getText() + "/" + annoField.getSelectedItem());
-//				fine = new SimpleDateFormat("dd/MM/yyyy").parse(fineCalendar.getText() + "/" + annoField.getSelectedItem());
-//				if (inizio.compareTo(fine) > 0) {
-//					throw new IllegalStateException();
-//				}
-//			} catch (Exception e) {
-//				alert.setText("Dati inseriti non validi");
-//				return;
-//			}
-//			grid.updateGrid(anno, inizio, fine);	
-//		});
+		button.addActionListener(l -> {
+			alert.setText("");
+			var inizio = inizioCalendar.getDate();
+			var fine = fineCalendar.getDate();
+			if (inizio.compareTo(fine) > 0) {
+				alert.setText("Dati inseriti non validi");
+				return;
+			}
+			grid.updateGrid(Integer.parseInt((String) annoField.getSelectedItem()), inizio, fine);	
+		});
 		
 		add(annoLabel);
 		add(annoField);
@@ -73,6 +67,7 @@ public class Period extends JPanel {
 		add(fineCalendar);
 		add(button);
 		add(alert);
+		button.doClick();
 	}
 	
 	private void updateStagioni() {

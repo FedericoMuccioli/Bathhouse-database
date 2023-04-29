@@ -6,21 +6,30 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.awt.GridBagConstraints;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+
+import lab.db.Query;
 import lab.model.PostazioneOmbrellone;
 import lab.utils.Utils;
+import lab.view.right.AddPostazioneSedutaRiva;
 
 public class Grid extends JPanel {
 
 	private final Connection connection;
+	private final Query query;
 	private final JButton[][] grid;
+	private int anno;
+	private Date dataInizio;
+	private Date dataFine;
 
-	public Grid(final Connection connection) {
+	public Grid(final Connection connection, Query query) {
 		this.connection = connection;
+		this.query = query;
 		setLayout(new GridBagLayout());
 		var c = new GridBagConstraints();
 		grid = new JButton[10][12];
@@ -35,16 +44,65 @@ public class Grid extends JPanel {
 			}
 		}
 	}
-
+	
 	public void updateGrid(final int anno, final Date dataInizio, final Date dataFine) {
-		resetGrid();
+		this.anno = anno;
+		this.dataInizio = dataInizio;
+		this.dataFine = dataFine;
+		updateGrid();
+	}
+	
+	public void updateGrid() {
 		try {
+			addPostazioneMancante();
 			addPostazioniOmbrelloni(anno, dataInizio, dataFine);
 			addDisponibilitàOmbrelloni(anno, dataInizio, dataFine);
 			addPostazioniSedute(anno);
 			addDisponibilitàSedute(anno, dataInizio, dataFine);
 		} catch (Exception e) {
 			return;
+		}
+	}
+
+	private void addPostazioniOmbrelloni(final int anno, final Date dataInizio, final Date dataFine) throws SQLException {
+		for (var o : query.getOmbrelloniPiantati(anno)) {
+			grid[o.getColonna()-1][o.getFila()-1].setText(String.valueOf(o.getNumeroOmbrellone()));
+		}
+	}
+	
+	private void addDisponibilitàOmbrelloni(final int anno, final Date dataInizio, final Date dataFine) {
+		for (int x = 0; x < 10; x++) {
+			for (int y = 0; y < 10; y++) {
+				var b = grid[x][y];
+				if(!b.getText().isBlank()) {
+					b.setOpaque(true);
+					removeAllActionListener(b);
+					boolean isOmbrellonePiantato;
+					boolean isOmbrellonePrenotato;
+					try {
+						isOmbrellonePiantato = query.isOmbrellonePiantato(Integer.parseInt(b.getText()), anno, dataInizio, dataFine);
+						isOmbrellonePrenotato = query.isOmbrellonePrenotato(Integer.parseInt(b.getText()), anno, dataInizio, dataFine);
+					} catch (NumberFormatException | SQLException e1) {
+						e1.printStackTrace();
+						break;
+					}
+					if (isOmbrellonePiantato && !isOmbrellonePrenotato) {
+						b.setBackground(Color.GREEN);
+						b.addActionListener(l -> new AddOmbrelloneConPrenotazione(this, connection,
+								Integer.parseInt(b.getText()), anno, dataInizio, dataFine));
+					} else {
+						b.setBackground(Color.RED);
+						b.addActionListener(l -> {
+							try {
+								new VisualOmbrelloneConPrenotazione(connection,
+										Integer.parseInt(b.getText()), anno, dataInizio, dataFine);
+							} catch (NumberFormatException | SQLException e) {
+								throw new IllegalStateException();
+							}
+						});
+					}
+				}
+			}
 		}
 	}
 
@@ -65,28 +123,13 @@ public class Grid extends JPanel {
 			}
 		}
 	}
-
-	private void addPostazioniOmbrelloni(final int anno, final Date dataInizio, final Date dataFine) throws SQLException {
-		final List<PostazioneOmbrellone> postazioniOmbrelloni;
-		final String query = "SELECT * FROM PostazioniOmbrelloni WHERE anno = ? AND dataInizio <= ? AND (dataFine >= ? OR dataFine is null)";
-		try (final PreparedStatement statement = connection.prepareStatement(query)) {
-			statement.setInt(1, anno);
-			statement.setDate(2, Utils.dateToSqlDate(dataInizio));
-			statement.setDate(3, Utils.dateToSqlDate(dataFine));
-			final ResultSet resultSet = statement.executeQuery();
-			postazioniOmbrelloni = PostazioneOmbrellone.readPostazioniOmbrelloniFromResultSet(resultSet);
-		}
-
-		for (var o : postazioniOmbrelloni) {
-			grid[o.getColonna()-1][o.getFila()-1].setText(String.valueOf(o.getNumeroOmbrellone()));
-		}
-	}
-
+	
 	private void addDisponibilitàSedute(final int anno, final Date dataInizio, final Date dataFine) throws NumberFormatException, SQLException {
 		for (int x = 0; x < 10; x++) {
 			for (int y = 9; y < 12; y++) {
 				var b = grid[x][y];
-				if(!b.getText().isEmpty()) {
+				if(!b.getText().isBlank()) {
+					removeAllActionListener(b);
 					final String query = "SELECT * FROM SeduteConPrenotazioni WHERE anno = ? "
 							+ "AND numeroSeduta = ? AND NOT ((dataInizio < ? AND dataFine < ?) OR (dataInizio > ? AND dataFine > ?))";
 					try (final PreparedStatement statement = this.connection.prepareStatement(query)) {
@@ -110,7 +153,7 @@ public class Grid extends JPanel {
 							});
 						} else {
 							b.setBackground(Color.GREEN);
-							b.addActionListener(l -> new AddSedutaConPrenotazione(connection,
+							b.addActionListener(l -> new AddSedutaConPrenotazione(this, connection,
 									Integer.parseInt(b.getText()), anno, dataInizio, dataFine));
 						}
 					}
@@ -119,53 +162,29 @@ public class Grid extends JPanel {
 		}
 	}
 
-	private void addDisponibilitàOmbrelloni(final int anno, final Date dataInizio, final Date dataFine) throws NumberFormatException, SQLException {
-		for (int x = 0; x < 10; x++) {
-			for (int y = 0; y < 10; y++) {
-				var b = grid[x][y];
-				if(!b.getText().isEmpty()) {
-					final String query = "SELECT * FROM OmbrelloniConPrenotazione WHERE anno = ? "
-							+ "AND numeroOmbrellone = ? AND NOT ((dataInizio < ? AND dataFine < ?) OR (dataInizio > ? AND dataFine > ?))";
-					try (final PreparedStatement statement = this.connection.prepareStatement(query)) {
-						statement.setInt(1, anno);
-						statement.setInt(2, Integer.parseInt(b.getText()));
-						statement.setDate(3, Utils.dateToSqlDate(dataInizio));
-						statement.setDate(4, Utils.dateToSqlDate(dataInizio));
-						statement.setDate(5, Utils.dateToSqlDate(dataFine));
-						statement.setDate(6, Utils.dateToSqlDate(dataFine));
-						final ResultSet resultSet = statement.executeQuery();
-						b.setOpaque(true);
-						if (resultSet.next()) {
-							b.setBackground(Color.RED);
-							b.addActionListener(l -> {
-								try {
-									new VisualOmbrelloneConPrenotazione(connection,
-											Integer.parseInt(b.getText()), anno, dataInizio, dataFine);
-								} catch (NumberFormatException | SQLException e) {
-									throw new IllegalStateException();
-								}
-							});
-						} else {
-							b.setBackground(Color.GREEN);
-							b.addActionListener(l -> new AddOmbrelloneConPrenotazione(connection,
-									Integer.parseInt(b.getText()), anno, dataInizio, dataFine));
-						}
-					}
-				}
-			}
-		}
-	}
 
-	private void resetGrid() {
+	
+	private void addPostazioneMancante() {
 		for (int x = 0; x < 10; x++) {
 			for (int y = 0; y < 12; y++) {
 				var b = grid[x][y];
 				b.setText("");
 				b.setOpaque(false);
-				for (var al : b.getActionListeners()) {//check if right
-					b.removeActionListener(al);
+				removeAllActionListener(b);
+				if (y<10) {
+					final int x_ = x + 1;
+					final int y_ = y + 1;
+					b.addActionListener(l -> new AddPostazioneOmbrellone(connection, this, anno, y_, x_, dataInizio)); //connection -> query
+				} else {
+					b.addActionListener(l -> new AddPostazioneSedutaRiva(connection, this)); //connection -> query
 				}
 			}
+		}
+	}
+	
+	private void removeAllActionListener(JButton b) {
+		for (var al : b.getActionListeners()) {
+			b.removeActionListener(al);
 		}
 	}
 

@@ -22,7 +22,7 @@ public class AddOmbrelloneConPrenotazione extends JDialog {
 	private final JLabel alert;
 
 
-	public AddOmbrelloneConPrenotazione(final Connection connection, final int numeroOmbrellone, final int anno,
+	public AddOmbrelloneConPrenotazione(Grid grid, final Connection connection, final int numeroOmbrellone, final int anno,
 			final Date dataInizio, final Date dataFine) {
 		this.connection = connection;
 		this.numeroOmbrellone = numeroOmbrellone;
@@ -67,6 +67,7 @@ public class AddOmbrelloneConPrenotazione extends JDialog {
 			inserimentoComposizione(1, n_lettini);
 			inserimentoComposizione(2, n_sedie);
 			inserimentoComposizione(3, n_sdraio);
+			grid.updateGrid();
 
 		});
 		panel.add(codiceFiscale);

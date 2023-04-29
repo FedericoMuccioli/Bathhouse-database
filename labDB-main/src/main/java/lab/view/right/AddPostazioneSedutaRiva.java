@@ -11,9 +11,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import lab.view.center.Grid;
+
 public class AddPostazioneSedutaRiva extends JDialog {
 
-	public AddPostazioneSedutaRiva(final Connection connection) {
+	public AddPostazioneSedutaRiva(final Connection connection, Grid grid) {
 		final var panel = new JPanel(new GridBagLayout());
 		panel.setPreferredSize(new Dimension(800,300));
 		final JTextField anno = new JTextField("anno");
@@ -28,6 +30,7 @@ public class AddPostazioneSedutaRiva extends JDialog {
 				statement.setInt(2, Integer.parseInt(numeroOmbrellone.getText()));
 				statement.executeUpdate();
 				alert.setText("Inserimento eseguito");
+				grid.updateGrid();
 			} catch (final Exception e) {
 				alert.setText("Inserimento non eseguito");
 			}

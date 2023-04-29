@@ -28,7 +28,8 @@ public class VisualOmbrelloneConPrenotazione extends JDialog {
 		final var conferma = new JButton("Conferma");
 		final JLabel output = new JLabel();
 		final List<String> affitti = new ArrayList<>();
-		final JList<String> affittiJList;		
+		final JList<String> affittiJList;	
+		int rowCount = 0;
 		
 		final String query = "SELECT nominativo, dataInizio, dataFine FROM OmbrelloniConPrenotazione O JOIN Clienti C "
 				+ "ON (O.codiceFiscaleCliente = C.codiceFiscale) WHERE anno = ? "
@@ -44,8 +45,13 @@ public class VisualOmbrelloneConPrenotazione extends JDialog {
         	
         	while(resultSet.next()) {
         		affitti.add(resultSet.getString("nominativo") + ", " + resultSet.getString("dataInizio") + ", " + resultSet.getString("dataFine"));
+        		rowCount++;
         	}
         }
+		if (rowCount == 0) {
+			output.setText("Nessuna prenotazione");
+			conferma.setVisible(false);
+		}
 		affittiJList = new JList(affitti.toArray());
 		
 		conferma.addActionListener(l -> {

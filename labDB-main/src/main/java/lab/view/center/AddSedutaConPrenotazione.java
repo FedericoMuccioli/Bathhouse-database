@@ -15,7 +15,7 @@ import lab.utils.Utils;
 
 public class AddSedutaConPrenotazione extends JDialog {
 
-	public AddSedutaConPrenotazione(final Connection connection, final int numeroSeduta, final int anno,
+	public AddSedutaConPrenotazione(Grid grid, final Connection connection, final int numeroSeduta, final int anno,
 			final Date dataInizio, final Date dataFine) {
 
 		final var panel = new JPanel(new GridBagLayout());
@@ -44,6 +44,7 @@ public class AddSedutaConPrenotazione extends JDialog {
 			} catch (final Exception e) {
 				alert.setText("Inserimento non eseguito");
 			}
+			grid.updateGrid();
 		});
 
 		panel.add(codiceFiscale);
