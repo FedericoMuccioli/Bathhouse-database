@@ -87,7 +87,7 @@ public class Grid extends JPanel {
 					}
 					if (isOmbrellonePiantato && !isOmbrellonePrenotato) {
 						b.setBackground(Color.GREEN);
-						b.addActionListener(l -> new AddOmbrelloneConPrenotazione(this, connection,
+						b.addActionListener(l -> new AddOmbrelloneConPrenotazione(this, connection, query,
 								Integer.parseInt(b.getText()), anno, dataInizio, dataFine));
 					} else {
 						b.setBackground(Color.RED);

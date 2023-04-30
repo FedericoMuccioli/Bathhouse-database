@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -106,6 +107,23 @@ public class Query {
         statement.setInt(1, anno);
 		statement.setInt(2, numeroSeduta);
         statement.executeUpdate();
+	}
+	
+	public boolean removePostazioneOmbrellone(int numeroOmbrellone, int anno, Date dataFine) throws SQLException {
+		String query = "UPDATE PostazioniOmbrelloni SET dataFine = ? WHERE anno = ? AND numeroOmbrellone = ? "
+				+ "AND ((NOT EXISTS (SELECT 1 FROM OmbrelloniConPrenotazione WHERE anno = ? AND numeroOmbrellone = ?)) "
+				+ "OR (? > (SELECT MAX(dataFine) FROM OmbrelloniConPrenotazione WHERE anno = ? AND numeroOmbrellone = ?)))";
+		
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setDate(1, Utils.dateToSqlDate(dataFine));
+		statement.setInt(2, anno);
+		statement.setInt(3, numeroOmbrellone);
+		statement.setInt(4, anno);
+		statement.setInt(5, numeroOmbrellone);
+		statement.setDate(6, Utils.dateToSqlDate(dataFine));
+		statement.setInt(7, anno);
+		statement.setInt(8, numeroOmbrellone);
+		return statement.executeUpdate() == 0 ? false : true;
 	}
 
 }

@@ -46,7 +46,6 @@ public class AddPostazione extends JDialog {
 			alert.setText("Errore nella lettura dei numeri disponibili. Riprovare.");
 		}
 		
-		
 		button.addActionListener(l -> {
 			try {
 				if (tip == Tipologia.OMBRELLONE) {

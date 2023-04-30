@@ -28,7 +28,7 @@ public class MainMenu extends JFrame {
 		final JPanel panel = new JPanel(new BorderLayout());
 		final Grid centerPanel = new Grid(connection, query);
 		final JPanel topPanel = new Period(query, centerPanel);
-		final JPanel rightPanel = new RightPanel(connection);
+		final JPanel rightPanel = new RightPanel(connection, query);
 		panel.add(topPanel, BorderLayout.NORTH);
 		panel.add(centerPanel, BorderLayout.CENTER);
 		panel.add(rightPanel, BorderLayout.EAST);
