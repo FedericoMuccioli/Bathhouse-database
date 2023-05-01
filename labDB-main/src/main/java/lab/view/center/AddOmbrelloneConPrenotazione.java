@@ -17,7 +17,6 @@ import javax.swing.JTextField;
 
 import lab.db.Query;
 import lab.utils.Utils;
-//import lab.view.right.RemovePostazioneOmbrellone;
 
 public class AddOmbrelloneConPrenotazione extends JDialog {
 
@@ -49,7 +48,7 @@ public class AddOmbrelloneConPrenotazione extends JDialog {
 		var costo = new JLabel("Costo:");
 		final JTextField prezzo = new JTextField(16);
 		this.alert = new JLabel();
-		var removePostazioneOmbrellone = new JButton("Imposta giorno rimozione postazione ombrellone");
+		var removePostazioneOmbrellone = new JButton("Rimuovi postazione ombrellone");
 		final var button = new JButton("AFFITTA");
 		codiceFiscale.setText("codiceFiscale");
 		codiceUnivoco.setText("codice Bagnino");
@@ -57,11 +56,11 @@ public class AddOmbrelloneConPrenotazione extends JDialog {
 	
 		removePostazioneOmbrellone.addActionListener(l -> {
 			try {
-				if (!query.removePostazioneOmbrellone(numeroOmbrellone, anno, dataFine)) {
+				if (!query.removePostazioneOmbrellone(numeroOmbrellone, anno, new Date(dataInizio.getTime() - 86400000))) {
 					throw new IllegalArgumentException();
 				}
 				grid.updateGrid();
-				alert.setText("Giorno rimozione impostato");
+				dispose();
 			} catch (Exception e) {
 				alert.setText("Giorno rimozione NON impostato");
 			}
@@ -125,10 +124,8 @@ public class AddOmbrelloneConPrenotazione extends JDialog {
 		panel.add(button, c);
 		c.gridy=++y;
 		panel.add(alert, c);
-		mainPanel.add(panel);
-		if (dataInizio.equals(dataFine)) {
-			mainPanel.add(removePostazioneOmbrellone, BorderLayout.SOUTH);
-		}
+		mainPanel.add(panel);	
+		mainPanel.add(removePostazioneOmbrellone, BorderLayout.SOUTH);
 		add(mainPanel);
 		pack();
 		setResizable(false);

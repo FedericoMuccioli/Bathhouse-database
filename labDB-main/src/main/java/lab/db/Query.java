@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 import lab.model.PostazioneOmbrellone;
+import lab.model.TipoCliente;
 import lab.utils.Utils;
 
 public class Query {
@@ -112,7 +113,7 @@ public class Query {
 	public boolean removePostazioneOmbrellone(int numeroOmbrellone, int anno, Date dataFine) throws SQLException {
 		String query = "UPDATE PostazioniOmbrelloni SET dataFine = ? WHERE anno = ? AND numeroOmbrellone = ? "
 				+ "AND ((NOT EXISTS (SELECT 1 FROM OmbrelloniConPrenotazione WHERE anno = ? AND numeroOmbrellone = ?)) "
-				+ "OR (? > (SELECT MAX(dataFine) FROM OmbrelloniConPrenotazione WHERE anno = ? AND numeroOmbrellone = ?)))";
+				+ "OR (? >= (SELECT MAX(dataFine) FROM OmbrelloniConPrenotazione WHERE anno = ? AND numeroOmbrellone = ?)))";
 		
 		PreparedStatement statement = connection.prepareStatement(query);
 		statement.setDate(1, Utils.dateToSqlDate(dataFine));
@@ -124,6 +125,18 @@ public class Query {
 		statement.setInt(7, anno);
 		statement.setInt(8, numeroOmbrellone);
 		return statement.executeUpdate() == 0 ? false : true;
+	}
+	
+	public List<TipoCliente> getTipiClienti() throws SQLException {
+		String query = "SELECT * FROM TipiClienti";
+		ResultSet rs = connection.createStatement().executeQuery(query);
+		var tipiClienti = new ArrayList<TipoCliente>();
+		while (rs.next()) {
+//			int codiceUnivoco = rs.getInt("codiceTipoCliente");
+//			String tipo = rs.getString("nome");
+			tipiClienti.add(new TipoCliente(rs.getInt("codiceTipoCliente"),  rs.getString("nome")));
+        }
+		return tipiClienti;
 	}
 
 }

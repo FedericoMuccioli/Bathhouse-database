@@ -1,6 +1,7 @@
 package lab.view.right;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.JButton;
@@ -18,7 +19,12 @@ public class RightPanel extends JPanel {
 		final JButton addCliente = new JButton("Aggiungi cliente");
 		
 		addBagnino.addActionListener(l -> new AddBagnino(connection));
-		addCliente.addActionListener(l -> new AddCliente(connection));
+		addCliente.addActionListener(l -> {
+			try {
+				new AddCliente(connection, query);
+			} catch (SQLException e) {
+			}
+		});
 		
 		var c = new GridBagConstraints();
 		c.gridy=1;
