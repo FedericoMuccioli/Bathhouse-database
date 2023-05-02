@@ -38,22 +38,23 @@ public class AddOmbrelloneConPrenotazione extends JDialog {
 		panel.setPreferredSize(new Dimension(800,300));
 
 		var cliente = new JLabel("Cliente:");
-		final JTextField codiceFiscale = new JTextField(16);
+//		final JTextField codiceFiscale = new JTextField(16);
+		var codiceFiscale = new JButton("trova cliente");
 		var bagnino = new JLabel("Bagnino:");
-		final JTextField codiceUnivoco = new JTextField(16);
+		final JTextField codiceUnivoco = new JTextField("codice Bagnino", 16);
 		var sedute = new JLabel("Sedute:");
 		final JTextField lettini = new JTextField("n lettini");
 		final JTextField sedie = new JTextField("n sedie");
 		final JTextField sdraio = new JTextField("n sdraio");
 		var costo = new JLabel("Costo:");
-		final JTextField prezzo = new JTextField(16);
+		final JTextField prezzo = new JTextField("000,00", 16);
 		this.alert = new JLabel();
 		var removePostazioneOmbrellone = new JButton("Rimuovi postazione ombrellone");
 		final var button = new JButton("AFFITTA");
-		codiceFiscale.setText("codiceFiscale");
-		codiceUnivoco.setText("codice Bagnino");
-		prezzo.setText("000,00");
+		
+		
 	
+		codiceFiscale.addActionListener(l -> new FoundCliente());
 		removePostazioneOmbrellone.addActionListener(l -> {
 			try {
 				if (!query.removePostazioneOmbrellone(numeroOmbrellone, anno, new Date(dataInizio.getTime() - 86400000))) {
