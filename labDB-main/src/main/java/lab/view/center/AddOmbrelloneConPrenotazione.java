@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
+
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -16,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import lab.db.Query;
+import lab.model.Cliente;
 import lab.utils.Utils;
 
 public class AddOmbrelloneConPrenotazione extends JDialog {
@@ -51,10 +54,21 @@ public class AddOmbrelloneConPrenotazione extends JDialog {
 		this.alert = new JLabel();
 		var removePostazioneOmbrellone = new JButton("Rimuovi postazione ombrellone");
 		final var button = new JButton("AFFITTA");
+		codiceFiscale.setPreferredSize(prezzo.getPreferredSize());
 		
 		
 	
-		codiceFiscale.addActionListener(l -> new FoundCliente());
+		codiceFiscale.addActionListener(l -> {
+			List<Cliente> clienti;
+			try {
+				clienti = query.getClienti();
+			} catch (SQLException e) {
+				alert.setText("Riprova a cercare il cliente");
+				return;
+			}
+			new FoundCliente(clienti, codiceFiscale);	
+		});
+		
 		removePostazioneOmbrellone.addActionListener(l -> {
 			try {
 				if (!query.removePostazioneOmbrellone(numeroOmbrellone, anno, new Date(dataInizio.getTime() - 86400000))) {

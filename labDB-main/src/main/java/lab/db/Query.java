@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import lab.model.Cliente;
 import lab.model.PostazioneOmbrellone;
 import lab.model.TipoCliente;
 import lab.utils.Utils;
@@ -132,11 +133,18 @@ public class Query {
 		ResultSet rs = connection.createStatement().executeQuery(query);
 		var tipiClienti = new ArrayList<TipoCliente>();
 		while (rs.next()) {
-//			int codiceUnivoco = rs.getInt("codiceTipoCliente");
-//			String tipo = rs.getString("nome");
 			tipiClienti.add(new TipoCliente(rs.getInt("codiceTipoCliente"),  rs.getString("nome")));
         }
 		return tipiClienti;
 	}
-
+	
+	public List<Cliente> getClienti() throws SQLException {
+		String query = "SELECT codiceFiscale, C.nome, cognome, telefono, T.nome AS tipoCliente FROM Clienti C LEFT JOIN TipiClienti T ON C.codiceTipoCliente = T.codiceTipoCliente;";
+		ResultSet rs = connection.createStatement().executeQuery(query);
+		var clienti = new ArrayList<Cliente>();
+		while (rs.next()) {
+			clienti.add(new Cliente(rs.getString("codiceFiscale"),  rs.getString("nome"), rs.getString("cognome"), rs.getString("telefono"), rs.getString("tipoCliente")));
+        }
+		return clienti;
+	}
 }
