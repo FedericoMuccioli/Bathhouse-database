@@ -58,9 +58,8 @@ public class Bagnino {
 
     @Override
 	public String toString() {
-		return "Bagnino [codiceFiscale=" + codiceFiscale + ", nome=" + nome + ", cognome=" + cognome
-				+ ", codiceUnivoco=" + codiceUnivoco + ", dataNascita=" + dataNascita + ", indirizzo=" + indirizzo
-				+ ", telefono=" + telefono + "]";
+    	String s = " ";
+    	return nome.concat(s).concat(cognome).concat(s).concat("id:").concat(String.valueOf(codiceUnivoco));
 	}
 
 	@Override

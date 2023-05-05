@@ -1,20 +1,22 @@
 package lab.db;
 
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lab.model.Bagnino;
 import lab.model.Cliente;
-import lab.model.OmbrelloneConPrenotazione;
+import lab.model.PrenotazioneOmbrellone;
+import lab.model.PrenotazioneSeduta;
 import lab.model.PostazioneOmbrellone;
 import lab.model.TipoCliente;
+import lab.model.TipoSeduta;
 import lab.utils.Utils;
 
 public class Query {
@@ -24,29 +26,7 @@ public class Query {
 	public Query(Connection connection) {
 		this.connection = connection;
 	}
-
-	public List<Integer> getStagioni() throws SQLException {
-		var stagioni = new ArrayList<Integer>();
-		ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM Spiagge ORDER BY anno DESC");
-		while (rs.next()) {
-			stagioni.add(rs.getInt("anno"));
-		}
-		return stagioni;
-	}
-
-	public void addStagione(int stagione) throws SQLException {
-		PreparedStatement statement = connection.prepareStatement("INSERT INTO Spiagge VALUES (?)");
-		statement.setInt(1, stagione);
-		statement.executeUpdate();
-	}
-
-	public List<PostazioneOmbrellone> getOmbrelloniPiantati(int anno) throws SQLException {
-		String query = "SELECT * FROM PostazioniOmbrelloni WHERE anno = ?";
-		PreparedStatement statement = connection.prepareStatement(query);
-		statement.setInt(1, anno);
-		return PostazioneOmbrellone.readPostazioniOmbrelloniFromResultSet(statement.executeQuery());
-	}
-
+	
 	public boolean isOmbrellonePiantato(int numeroOmbrellone, int anno, Date dataInizio, Date dataFine) throws SQLException {
 		String query = "SELECT * FROM PostazioniOmbrelloni WHERE anno = ? AND numeroOmbrellone = ? AND dataInizio <= ? AND (dataFine >= ? OR dataFine is null)";
 		PreparedStatement statement = connection.prepareStatement(query);
@@ -67,6 +47,25 @@ public class Query {
 		statement.setDate(5, Utils.dateToSqlDate(dataFine));
 		statement.setDate(6, Utils.dateToSqlDate(dataFine));
 		return statement.executeQuery().next();
+	}
+	
+	public boolean isSedutaPrenotata(int numeroSeduta, int anno, Date dataInizio, Date dataFine) throws SQLException {
+		String query = "SELECT * FROM SeduteConPrenotazioni WHERE anno = ? AND numeroSeduta = ? AND NOT ((dataInizio < ? AND dataFine < ?) OR (dataInizio > ? AND dataFine > ?))";
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setInt(1, anno);
+		statement.setInt(2, numeroSeduta);
+		statement.setDate(3, Utils.dateToSqlDate(dataInizio));
+		statement.setDate(4, Utils.dateToSqlDate(dataInizio));
+		statement.setDate(5, Utils.dateToSqlDate(dataFine));
+		statement.setDate(6, Utils.dateToSqlDate(dataFine));
+		return statement.executeQuery().next();
+	}
+	
+	public List<PostazioneOmbrellone> getOmbrelloniPiantati(int anno) throws SQLException {
+		String query = "SELECT * FROM PostazioniOmbrelloni WHERE anno = ?";
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setInt(1, anno);
+		return PostazioneOmbrellone.readPostazioniOmbrelloniFromResultSet(statement.executeQuery());
 	}
 
 	public List<Integer> getNumeriOmbrelloni(int anno) throws SQLException {
@@ -92,7 +91,54 @@ public class Query {
 		}
 		return numeriSedute;
 	}
+	
+	public List<TipoSeduta> getTipiSedute() throws SQLException {
+		var tipiSedute = new ArrayList<TipoSeduta>();
+		String query = "SELECT * FROM TipiSedute";
+		ResultSet rs = connection.createStatement().executeQuery(query);
+		while (rs.next()) {
+			tipiSedute.add(new TipoSeduta(rs.getInt("codiceTipoSeduta"), rs.getString("nome"), rs.getString("descrizione")));
+		}
+		return tipiSedute;
+	}
 
+	public void addStagione(int stagione) throws SQLException {
+		PreparedStatement statement = connection.prepareStatement("INSERT INTO Spiagge VALUES (?)");
+		statement.setInt(1, stagione);
+		statement.executeUpdate();
+	}
+	
+	public boolean insertCliente(Cliente cliente) throws SQLException {
+		String query = "INSERT INTO Clienti VALUES (?, ?, ?, ?, ?)";
+		PreparedStatement statement = connection.prepareStatement(query);
+		int i = 1;
+		statement.setString(i++, cliente.getCodiceFiscale());
+		statement.setString(i++, cliente.getNome());
+		statement.setString(i++, cliente.getCognome());
+		statement.setString(i++, cliente.getTelefono());
+		statement.setInt(i++, cliente.getTipoCliente().getCodiceUnivoco());
+		if (statement.executeUpdate() == 0) {
+			return false;
+		}
+		return true;
+	}
+
+	public boolean insertBagnino(Bagnino bagnino) throws SQLException {
+		String query = "INSERT INTO Bagnini (codiceFiscale, nome, cognome, dataDiNascita, indirizzo, telefono) VALUES (?, ?, ?, ?, ?, ?)";
+		PreparedStatement statement = connection.prepareStatement(query);
+		int i = 1;
+		statement.setString(i++, bagnino.getCodiceFiscale());
+		statement.setString(i++, bagnino.getNome());
+		statement.setString(i++, bagnino.getCognome());
+		statement.setDate(i++, Utils.dateToSqlDate(bagnino.getDataNascita()));
+		statement.setString(i++, bagnino.getIndirizzo());
+		statement.setString(i++, bagnino.getTelefono());
+		if (statement.executeUpdate() == 0) {
+			return false;
+		}
+		return true;
+	}
+	
 	public void insertPostazioneOmbrellone(int numeroOmbrellone, int fila, int colonna, int anno, Date dataInizio) throws SQLException {
 		String query = "INSERT INTO PostazioniOmbrelloni (anno, numeroOmbrellone, dataInizio, fila, colonna) SELECT ?, ?, ?, ?, ? WHERE 100 >= (SELECT COUNT(*) FROM PostazioniOmbrelloni WHERE anno = ?)";
 		PreparedStatement statement = connection.prepareStatement(query);
@@ -128,6 +174,24 @@ public class Query {
 		}
 		return true;
 	}
+	
+	public boolean insertPrenotazioneSeduta(int numeroSeduta, int anno, Date dataInizio, Date dataFine, Double prezzo, int codTipoSeduta, String codiceFiscale, int bagnino) throws SQLException {
+		String query = "INSERT INTO SeduteConPrenotazioni VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+		PreparedStatement statement = connection.prepareStatement(query);
+		int i = 1;
+		statement.setInt(i++, anno);
+		statement.setInt(i++, numeroSeduta);
+		statement.setDate(i++, Utils.dateToSqlDate(dataInizio));
+		statement.setDate(i++, Utils.dateToSqlDate(dataFine));
+		statement.setDouble(i++, prezzo);
+		statement.setInt(i++, codTipoSeduta);
+		statement.setString(i++, codiceFiscale);
+		statement.setInt(i++, bagnino);
+		if (statement.executeUpdate() == 0) {
+			return false;
+		}
+		return true;
+	}
 
 	public boolean insertLettini(int numeroOmbrellone, int anno, Date dataInizio, int quantità) throws SQLException {
 		return insertSedute(numeroOmbrellone, anno, dataInizio, quantità, 1);
@@ -155,24 +219,6 @@ public class Query {
 		return true;
 	}
 
-
-
-	public boolean insertBagnino(Bagnino bagnino) throws SQLException {
-		String query = "INSERT INTO Bagnini (codiceFiscale, nome, cognome, dataDiNascita, indirizzo, telefono) VALUES (?, ?, ?, ?, ?, ?)";
-		PreparedStatement statement = connection.prepareStatement(query);
-		int i = 1;
-		statement.setString(i++, bagnino.getCodiceFiscale());
-		statement.setString(i++, bagnino.getNome());
-		statement.setString(i++, bagnino.getCognome());
-		statement.setDate(i++, Utils.dateToSqlDate(bagnino.getDataNascita()));
-		statement.setString(i++, bagnino.getIndirizzo());
-		statement.setString(i++, bagnino.getTelefono());
-		if (statement.executeUpdate() == 0) {
-			return false;
-		}
-		return true;
-	}
-
 	public boolean removePostazioneOmbrellone(int numeroOmbrellone, int anno, Date dataFine) throws SQLException {
 		String query = "UPDATE PostazioniOmbrelloni SET dataFine = ? WHERE anno = ? AND numeroOmbrellone = ? "
 				+ "AND ((NOT EXISTS (SELECT 1 FROM OmbrelloniConPrenotazione WHERE anno = ? AND numeroOmbrellone = ?)) "
@@ -190,22 +236,22 @@ public class Query {
 		return statement.executeUpdate() == 0 ? false : true;
 	}
 
-	public List<TipoCliente> getTipiClienti() throws SQLException {
-		String query = "SELECT * FROM TipiClienti";
-		ResultSet rs = connection.createStatement().executeQuery(query);
-		var tipiClienti = new ArrayList<TipoCliente>();
+	public List<Integer> getStagioni() throws SQLException {
+		var stagioni = new ArrayList<Integer>();
+		ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM Spiagge ORDER BY anno DESC");
 		while (rs.next()) {
-			tipiClienti.add(new TipoCliente(rs.getInt("codiceTipoCliente"),  rs.getString("nome")));
+			stagioni.add(rs.getInt("anno"));
 		}
-		return tipiClienti;
+		return stagioni;
 	}
-
+	
 	public List<Cliente> getClienti() throws SQLException {
-		String query = "SELECT codiceFiscale, C.nome, cognome, telefono, T.nome AS tipoCliente FROM Clienti C LEFT JOIN TipiClienti T ON C.codiceTipoCliente = T.codiceTipoCliente";
+		String query = "SELECT C.*, T.nome AS tipoCliente FROM Clienti C LEFT JOIN TipiClienti T ON C.codiceTipoCliente = T.codiceTipoCliente";
 		ResultSet rs = connection.createStatement().executeQuery(query);
 		var clienti = new ArrayList<Cliente>();
 		while (rs.next()) {
-			clienti.add(new Cliente(rs.getString("codiceFiscale"),  rs.getString("nome"), rs.getString("cognome"), rs.getString("telefono"), rs.getString("tipoCliente")));
+			var tipoCliente = new TipoCliente(rs.getInt("codiceTipoCliente"), rs.getString("tipoCliente"));
+			clienti.add(new Cliente(rs.getString("codiceFiscale"),  rs.getString("nome"), rs.getString("cognome"), rs.getString("telefono"), tipoCliente));
 		}
 		return clienti;
 	}
@@ -219,57 +265,95 @@ public class Query {
 		}
 		return bagnini;
 	}
+	
+	public List<TipoCliente> getTipiClienti() throws SQLException {
+		String query = "SELECT * FROM TipiClienti";
+		ResultSet rs = connection.createStatement().executeQuery(query);
+		var tipiClienti = new ArrayList<TipoCliente>();
+		while (rs.next()) {
+			tipiClienti.add(new TipoCliente(rs.getInt("codiceTipoCliente"),  rs.getString("nome")));
+		}
+		return tipiClienti;
+	}
 
-	public List<OmbrelloneConPrenotazione> getOmbrelloniConPrenotazioni(int anno, int numeroOmbrellone, Date dataInizio, Date dataFine) throws SQLException {
+
+	public List<PrenotazioneOmbrellone> getPrenotazioniOmbrellone(int anno, int numeroOmbrellone, Date dataInizio, Date dataFine) throws SQLException {
 		String query = "SELECT O.*, T.nome AS tipoCliente,"
 				+ " Cl.codiceTipoCliente, Cl.codiceFiscale AS codiceFiscaleCliente, Cl.nome AS nomeCliente, Cl.cognome AS cognomeCliente, Cl.telefono AS telefonoCliente,"
-				+ " B.codiceFiscale AS codiceFiscaleBagnino,B.codiceUnivoco, B.dataDiNascita, B.indirizzo, B.nome AS nomeBagnino, B.cognome AS cognomeBagnino, B.telefono AS telefonoBagnino"
-				+ " FROM OmbrelloniConPrenotazione O JOIN Composizioni C JOIN Clienti Cl JOIN Bagnini B JOIN TipiClienti T"
-				+ " ON (O.codiceFiscaleCliente = Cl.codiceFiscale AND O.anno = C.anno AND O.numeroOmbrellone = C.numeroOmbrellone AND O.dataInizio = C.dataInizio AND Cl.codiceTipoCliente = T.codiceTipoCliente)"
-				+ " WHERE O.anno = ? AND O.numeroOmbrellone = ? AND NOT ((O.dataInizio < ? AND O.dataFine < ?) OR (O.dataInizio > ? AND O.dataFine > ?))";
+				+ " B.codiceFiscale AS codiceFiscaleBagnino,B.codiceUnivoco, B.dataDiNascita, B.indirizzo, B.nome AS nomeBagnino, B.cognome AS cognomeBagnino, B.telefono AS telefonoBagnino,"
+				+ " GROUP_CONCAT(Ts.nome SEPARATOR ' ') AS sedute, GROUP_CONCAT(C.quantita SEPARATOR ' ') AS quantitaSedute"
+				+ " FROM OmbrelloniConPrenotazione O JOIN Clienti Cl ON O.codiceFiscaleCliente = Cl.codiceFiscale"
+				+ " JOIN Bagnini B ON O.codiceUnivocoBagnino = B.codiceUnivoco"
+				+ " JOIN TipiClienti T ON Cl.codiceTipoCliente = T.codiceTipoCliente"
+				+ " JOIN Composizioni C ON O.numeroOmbrellone = C.numeroOmbrellone AND O.anno = C.anno AND O.dataInizio = C.dataInizio"
+				+ " JOIN TipiSedute Ts ON C.codiceTipoSeduta = Ts.codiceTipoSeduta"
+				+ " WHERE O.anno = ? AND O.numeroOmbrellone = ? AND NOT ((O.dataInizio < ? AND O.dataFine < ?) OR (O.dataInizio > ? AND O.dataFine > ?))"
+				+ " GROUP BY O.numeroOmbrellone, O.anno, O.dataInizio, O.dataFine";
 		int i = 1;
 		PreparedStatement statement = connection.prepareStatement(query);
 		statement.setInt(i++, anno);
 		statement.setInt(i++, numeroOmbrellone);
 		statement.setDate(i++, Utils.dateToSqlDate(dataInizio));
-    	statement.setDate(i++, Utils.dateToSqlDate(dataInizio));
-    	statement.setDate(i++, Utils.dateToSqlDate(dataFine));
-    	statement.setDate(i++, Utils.dateToSqlDate(dataFine));
+		statement.setDate(i++, Utils.dateToSqlDate(dataInizio));
+		statement.setDate(i++, Utils.dateToSqlDate(dataFine));
+		statement.setDate(i++, Utils.dateToSqlDate(dataFine));
 		ResultSet rs = statement.executeQuery();
-		var ombrelloniConPrenotazioni = new ArrayList<OmbrelloneConPrenotazione>();
-		
-		Date exData = null;
-		Date data;
-		//fare poi il check
-		//cambiare anche il parametro mandato al costruttore tipoCliente
-		int nLettini;
-		int nSedie;
-		int nSdraio;
-		
-		
+		var prenotazioniOmbrellone = new ArrayList<PrenotazioneOmbrellone>();
+
 		while(rs.next()) {
-			
-			
-//			data = resultSet.getDate("dataInizio");
-//			if (data.equals(exData)) {
-//				int codTipoSeduta = resultSet.getInt("codiceTipoSeduta");
-//				int quantita = resultSet.getInt("quantita");
-//				switch (codTipoSeduta) {
-//					case 1: nLettini = quantita; break;
-//					case 2: nSedie = quantita; break;
-//					case 3: nSdraio = quantita; break;
-//				}
-//			} else {
-				var cliente = new Cliente(rs.getString("codiceFiscaleCliente"), rs.getString("nomeCliente"), rs.getString("cognomeCliente"), rs.getString("telefonoCliente"), rs.getString("tipoCliente"));
-				var bagnino = new Bagnino(rs.getString("codiceFiscaleBagnino"), rs.getString("nomeBagnino"), rs.getString("cognomeBagnino"), rs.getInt("codiceUnivoco"), rs.getDate("dataDiNascita"), rs.getString("indirizzo"), rs.getString("telefonoBagnino"));
-				var ombrelloneConPrenotazione = new OmbrelloneConPrenotazione(numeroOmbrellone, anno, rs.getDate("dataInizio"), rs.getDate("dataFine"), rs.getDouble("prezzo"), 
-						0, 0, 0, cliente, bagnino);
-				ombrelloniConPrenotazioni.add(ombrelloneConPrenotazione);
-//			}
+			int lettini = 0;
+			int sedie = 0;
+			int sdraio = 0;
+			var sedute = Arrays.asList(rs.getString("sedute").split(" "));
+			var quantita = Arrays.asList(rs.getString("quantitaSedute").split(" ")).stream().map(Integer::parseInt).collect(Collectors.toList());
+			for (var s : sedute) {
+				switch (s) {
+				case "lettino" : lettini = quantita.get(sedute.indexOf(s)); break;
+				case "sedia" : sedie = quantita.get(sedute.indexOf(s)); break;
+				case "sdraio" : sdraio = quantita.get(sedute.indexOf(s)); break;
+				}
+			}
+			var tipoCliente = new TipoCliente(rs.getInt("codiceTipoCliente"), rs.getString("tipoCliente"));
+			var cliente = new Cliente(rs.getString("codiceFiscaleCliente"), rs.getString("nomeCliente"), rs.getString("cognomeCliente"), rs.getString("telefonoCliente"), tipoCliente);
+			var bagnino = new Bagnino(rs.getString("codiceFiscaleBagnino"), rs.getString("nomeBagnino"), rs.getString("cognomeBagnino"), rs.getInt("codiceUnivoco"), rs.getDate("dataDiNascita"), rs.getString("indirizzo"), rs.getString("telefonoBagnino"));
+			var ombrelloneConPrenotazione = new PrenotazioneOmbrellone(numeroOmbrellone, anno, rs.getDate("dataInizio"), rs.getDate("dataFine"), rs.getDouble("prezzo"), 
+					lettini, sedie, sdraio, cliente, bagnino);
+			prenotazioniOmbrellone.add(ombrelloneConPrenotazione);
 		}
-		return ombrelloniConPrenotazioni;
+		return prenotazioniOmbrellone;
 	}
 
+	public List<PrenotazioneSeduta> getPrenotazioniSeduta(int anno, int numeroSeduta, Date dataInizio, Date dataFine) throws SQLException {
+		String query = "SELECT O.*, T.nome AS tipoCliente, Ts.codiceTipoSeduta, Ts.nome AS nomeSeduta, Ts.descrizione AS descrizioneSeduta,"
+				+ " Cl.codiceTipoCliente, Cl.codiceFiscale AS codiceFiscaleCliente, Cl.nome AS nomeCliente, Cl.cognome AS cognomeCliente, Cl.telefono AS telefonoCliente,"
+				+ " B.codiceFiscale AS codiceFiscaleBagnino,B.codiceUnivoco, B.dataDiNascita, B.indirizzo, B.nome AS nomeBagnino, B.cognome AS cognomeBagnino, B.telefono AS telefonoBagnino"
+				+ " FROM SeduteConPrenotazioni O JOIN Clienti Cl ON O.codiceFiscaleCliente = Cl.codiceFiscale"
+				+ " JOIN Bagnini B ON O.codiceUnivocoBagnino = B.codiceUnivoco"
+				+ " JOIN TipiClienti T ON Cl.codiceTipoCliente = T.codiceTipoCliente"
+				+ " JOIN TipiSedute Ts ON O.codiceTipoSeduta = Ts.codiceTipoSeduta"
+				+ " WHERE O.anno = ? AND O.numeroSeduta = ? AND NOT ((O.dataInizio < ? AND O.dataFine < ?) OR (O.dataInizio > ? AND O.dataFine > ?))";
+		int i = 1;
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setInt(i++, anno);
+		statement.setInt(i++, numeroSeduta);
+		statement.setDate(i++, Utils.dateToSqlDate(dataInizio));
+		statement.setDate(i++, Utils.dateToSqlDate(dataInizio));
+		statement.setDate(i++, Utils.dateToSqlDate(dataFine));
+		statement.setDate(i++, Utils.dateToSqlDate(dataFine));
+		ResultSet rs = statement.executeQuery();
+		var prenotazioniSeduta = new ArrayList<PrenotazioneSeduta>();
+
+		while(rs.next()) {
+			var tipoSeduta = new TipoSeduta(rs.getInt("codiceTipoSeduta"), rs.getString("nomeSeduta"), rs.getString("descrizioneSeduta"));
+			var tipoCliente = new TipoCliente(rs.getInt("codiceTipoCliente"), rs.getString("tipoCliente"));
+			var cliente = new Cliente(rs.getString("codiceFiscaleCliente"), rs.getString("nomeCliente"), rs.getString("cognomeCliente"), rs.getString("telefonoCliente"), tipoCliente);
+			var bagnino = new Bagnino(rs.getString("codiceFiscaleBagnino"), rs.getString("nomeBagnino"), rs.getString("cognomeBagnino"), rs.getInt("codiceUnivoco"), rs.getDate("dataDiNascita"), rs.getString("indirizzo"), rs.getString("telefonoBagnino"));
+			var ombrelloneConPrenotazione = new PrenotazioneSeduta(numeroSeduta, anno, rs.getDate("dataInizio"), rs.getDate("dataFine"), rs.getDouble("prezzo"), 
+					tipoSeduta, cliente, bagnino);
+			prenotazioniSeduta.add(ombrelloneConPrenotazione);
+		}
+		return prenotazioniSeduta;
+	}
 
 
 

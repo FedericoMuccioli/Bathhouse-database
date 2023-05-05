@@ -24,7 +24,7 @@ import lab.view.utilities.MyJDateChooser;
 
 public class AddBagnino extends JDialog {
 
-	public AddBagnino(Query query) {
+	public AddBagnino(final Query query) {
 		final var panel = new JPanel(new GridBagLayout());
 		panel.setPreferredSize(new Dimension(800,300));
 		setTitle("Aggiungi Bagnino");

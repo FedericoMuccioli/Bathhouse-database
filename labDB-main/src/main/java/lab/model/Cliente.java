@@ -7,15 +7,15 @@ public class Cliente {
     private final String codiceFiscale;
     private final String nome;
     private final String cognome;
-    private final String tipoCliente;
+    private final TipoCliente tipoCliente;
     private final String telefono;
     
-    public Cliente(final String codiceFiscale, final String nome, final String cognome, final String telefono, final String tipoCliente) {
+    public Cliente(final String codiceFiscale, final String nome, final String cognome, final String telefono, final TipoCliente tipoCliente) {
         this.codiceFiscale = codiceFiscale;
         this.nome = Objects.requireNonNull(nome);
         this.cognome = Objects.requireNonNull(cognome);
         this.tipoCliente = Objects.requireNonNull(tipoCliente);
-        this.telefono = Objects.requireNonNull(telefono);
+        this.telefono = telefono;
     }
 
     public String getCodiceFiscale() {
@@ -30,7 +30,7 @@ public class Cliente {
 		return cognome;
 	}
 
-	public String getTipoCliente() {
+	public TipoCliente getTipoCliente() {
 		return tipoCliente;
 	}
 
@@ -41,28 +41,7 @@ public class Cliente {
     @Override
 	public String toString() {
     	String s = " ";
-    	return nome.concat(s).concat(cognome).concat(s).concat(tipoCliente).concat(s).concat(telefono).concat(s).concat(codiceFiscale);
-//		return "Bagnino [codiceFiscale=" + codiceFiscale + ", nome=" + nome + ", cognome=" + cognome
-//				+ ", tipoCliente=" + tipoCliente + ", telefono=" + telefono + "]";
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Cliente other = (Cliente) obj;
-		return Objects.equals(codiceFiscale, other.codiceFiscale) && tipoCliente == other.tipoCliente
-				&& Objects.equals(cognome, other.cognome) && Objects.equals(nome, other.nome)
-				&& Objects.equals(telefono, other.telefono);
-	}
-	
-	@Override
-	public int hashCode() {
-		return Objects.hash(codiceFiscale, tipoCliente, cognome, nome, telefono);
-	}
+    	return nome.concat(s).concat(cognome).concat(s).concat(tipoCliente.toString()).concat(telefono.isBlank() ? "" : s + telefono).concat(s).concat(codiceFiscale);	
+    }
 	
 }

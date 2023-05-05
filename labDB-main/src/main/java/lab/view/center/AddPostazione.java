@@ -3,10 +3,7 @@ package lab.view.center;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,10 +15,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-
 import lab.db.Query;
-import lab.utils.Utils;
 
 public class AddPostazione extends JDialog {
 	
@@ -33,7 +27,7 @@ public class AddPostazione extends JDialog {
 	public AddPostazione(Tipologia tip, Query query, Grid grid, int anno, int fila, int colonna, Date inizio) {
 		final var panel = new JPanel(new GridBagLayout());
 		panel.setPreferredSize(new Dimension(800,300));
-		setTitle("Aggiungi postazion" + tip.toString().toLowerCase());
+		setTitle("Aggiungi postazione " + tip.toString().toLowerCase());
 		var label = new JLabel(tip.toString());
 		var numero = new JComboBox<Integer>();
 		final JLabel alert = new JLabel();

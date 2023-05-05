@@ -88,7 +88,7 @@ public class FoundCliente extends JDialog {
             		cliente.getNome().toLowerCase().contains(searchText) ||
                     cliente.getCognome().toLowerCase().contains(searchText) ||
                     cliente.getTelefono().toLowerCase().contains(searchText) ||
-            		cliente.getTipoCliente().toLowerCase().contains(searchText)){
+            		cliente.getTipoCliente().getTipo().toLowerCase().contains(searchText)){
                 filteredClients.add(cliente);
             }
         }

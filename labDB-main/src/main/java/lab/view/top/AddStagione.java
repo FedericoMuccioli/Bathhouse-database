@@ -3,16 +3,14 @@ package lab.view.top;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import lab.db.Query;
+import lab.utils.Utils;
 
 public class AddStagione extends JDialog {
 
@@ -27,6 +25,7 @@ public class AddStagione extends JDialog {
 			try {
 				query.addStagione(Integer.parseInt(anno.getText()));
 				alert.setText("Inserimento eseguito");
+				Utils.closeJDialogAfterOneSecond(this);
 			} catch (final Exception e) {
 				alert.setText("Inserimento non eseguito");
 			}

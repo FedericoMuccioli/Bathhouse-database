@@ -1,86 +1,55 @@
 package lab.view.center;
 
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.BorderLayout;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
-import lab.utils.Utils;
+import lab.db.Query;
+import lab.view.utilities.MyDefaultTableCellRenderer;
 
 public class VisualSedutaConPrenotazione extends JDialog {
 	
-	public VisualSedutaConPrenotazione(final Connection connection, final int numeroSeduta, final int anno, 
+	public VisualSedutaConPrenotazione(Query query, final int numeroSeduta, final int anno, 
 			final Date dataInizio, final Date dataFine) throws SQLException {
-		final var panel = new JPanel(new GridBagLayout());
+		var panel = new JPanel(new BorderLayout());
 		panel.setPreferredSize(new Dimension(800,300));
+		setTitle("Prenotazioni seduta:" + String.valueOf(numeroSeduta));
+		var tableModel = new DefaultTableModel();
+		var table = new JTable(tableModel);
+		var alert = new JLabel();
 		
-		final var conferma = new JButton("Conferma");
-		final JLabel output = new JLabel();
-		final List<String> affitti = new ArrayList<>();
-		final JList<String> affittiJList;	
-		
-		final String query = "SELECT nominativo, dataInizio, dataFine FROM SeduteConPrenotazioni O JOIN Clienti C "
-				+ "ON (O.codiceFiscaleCliente = C.codiceFiscale) WHERE anno = ? "
-				+ "AND numeroSeduta = ? AND NOT ((dataInizio < ? AND dataFine < ?) OR (dataInizio > ? AND dataFine > ?))";
-		try (final PreparedStatement statement = connection.prepareStatement(query)) {
-        	statement.setInt(1, anno);
-        	statement.setInt(2, numeroSeduta);
-        	statement.setDate(3, Utils.dateToSqlDate(dataInizio));
-        	statement.setDate(4, Utils.dateToSqlDate(dataInizio));
-        	statement.setDate(5, Utils.dateToSqlDate(dataFine));
-        	statement.setDate(6, Utils.dateToSqlDate(dataFine));
-        	final ResultSet resultSet = statement.executeQuery();
-        	
-        	while(resultSet.next()) {
-        		affitti.add(resultSet.getString("nominativo") + ", " + resultSet.getString("dataInizio") + ", " + resultSet.getString("dataFine"));
-        	}
-        }
-		affittiJList = new JList(affitti.toArray());
-		
-		conferma.addActionListener(l -> {
-			final var selectAffitto = affittiJList.getSelectedValue();
-			if (selectAffitto != null) {
-				final var values = selectAffitto.split(", ");
-				final var comand = "SELECT O.prezzo, Cl.codiceFiscale, O.codiceUnivocoBagnino, O.codiceTipoSeduta, Cl.nome, "
-						+ "Cl.cognome, Cl.telefono, codiceTipoCliente FROM SeduteConPrenotazioni O JOIN Clienti Cl "
-						+ "ON (O.codiceFiscaleCliente = Cl.codiceFiscale) WHERE O.anno = ? AND O.numeroSeduta = ? AND O.dataInizio = ?";
-				try (final PreparedStatement statement = connection.prepareStatement(comand)) {
-		        	statement.setInt(1, anno);
-		        	statement.setInt(2, numeroSeduta);
-		        	statement.setDate(3, java.sql.Date.valueOf(values[1]));
-		        	final ResultSet resultSet = statement.executeQuery();
-		        	String descrizione;
-		        	if (resultSet.next()) {
-		        		descrizione = "<html>nSeduta: " + numeroSeduta + ", tipoSeduta: " + resultSet.getInt("codiceTipoSeduta") + "<br>anno: " + anno + ", inizio: " + values[1] + ", fine: " + values[2]
-		        				+ ", prezzo: " + resultSet.getString("prezzo") + ", codBagnino: " + resultSet.getInt("codiceUnivocoBagnino") 
-		        				+ "<br>nome: " + resultSet.getString("nome") + ", cognome: " + resultSet.getString("cognome")
-		        				+ ", nominativo: " + values[0] + "<br> telefono: " + resultSet.getString("telefono") + ", codTipoCliente: "
-		        				+ resultSet.getInt("codiceTipoCliente") + ", CF: " + resultSet.getString("codiceFiscale") + "</html>";
-			        	output.setText(descrizione);
-		        	}
-		        } catch (final Exception e) {
-		        	throw new IllegalStateException(e);
-		        }
+		try {
+			var prenotazioniSeduta = query.getPrenotazioniSeduta(anno, numeroSeduta, dataInizio, dataFine);
+			table.getTableHeader().setDefaultRenderer(new MyDefaultTableCellRenderer());
+			tableModel.addColumn("dataInizio");
+			tableModel.addColumn("dataFine");
+			tableModel.addColumn("tipoSeduta");
+			tableModel.addColumn("prezzo");
+			tableModel.addColumn("cliente");
+			tableModel.addColumn("bagnino");
+
+			if (!prenotazioniSeduta.isEmpty()) {
+				for (var o : prenotazioniSeduta) {
+					Object[] rowData = {o.getDataInizio(), o.getDataFine(), o.getTipoSeduta(), o.getPrezzo(), o.getCliente(), o.getBagnino()};
+					tableModel.addRow(rowData);
+				}
+				MyDefaultTableCellRenderer.resizeAndCenterTable(table);
 			}
-		});
+
+		} catch (Exception e) {
+			alert.setText("Riprovare, errore nell'esecuzione della query");
+		}
 		
-		panel.add(affittiJList);
-		panel.add(conferma);
-		var c = new GridBagConstraints();
-		c.gridy = 1;
-		c.gridwidth = 3;
-		panel.add(output, c);
+		panel.add(new JScrollPane(table));
+		panel.add(alert, BorderLayout.SOUTH);
 		add(panel);
 		pack();
 		setResizable(false);

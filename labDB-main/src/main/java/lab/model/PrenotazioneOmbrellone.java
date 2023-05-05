@@ -3,7 +3,7 @@ package lab.model;
 import java.util.Date;
 import java.util.Objects;
 
-public class OmbrelloneConPrenotazione {
+public class PrenotazioneOmbrellone {
 
     private final int numeroOmbrellone;
     private final int anno;
@@ -17,7 +17,7 @@ public class OmbrelloneConPrenotazione {
     private final Bagnino bagnino;
     
     
-	public OmbrelloneConPrenotazione(int numeroOmbrellone, int anno, Date dataInizio, Date dataFine, double prezzo, int nLettini, int nSedie, int nSdraio, Cliente cliente, Bagnino bagnino) {
+	public PrenotazioneOmbrellone(int numeroOmbrellone, int anno, Date dataInizio, Date dataFine, double prezzo, int nLettini, int nSedie, int nSdraio, Cliente cliente, Bagnino bagnino) {
 		this.numeroOmbrellone = numeroOmbrellone;
 		this.anno = anno;
 		this.dataInizio = dataInizio;

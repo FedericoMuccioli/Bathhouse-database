@@ -12,7 +12,7 @@ import lab.view.center.AddPostazione;
 
 public class RightPanel extends JPanel {
 	
-	public RightPanel(final Connection connection, Query query) {
+	public RightPanel(Query query) {
 		setLayout(new GridBagLayout());
 		
 		final JButton addBagnino = new JButton("Aggiungi bagnino");
@@ -21,7 +21,7 @@ public class RightPanel extends JPanel {
 		addBagnino.addActionListener(l -> new AddBagnino(query));
 		addCliente.addActionListener(l -> {
 			try {
-				new AddCliente(connection, query);
+				new AddCliente(query);
 			} catch (SQLException e) {
 			}
 		});

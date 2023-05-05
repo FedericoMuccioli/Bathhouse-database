@@ -13,7 +13,6 @@ import lab.view.utilities.MyJDateChooser;
 
 import java.awt.GridBagLayout;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 

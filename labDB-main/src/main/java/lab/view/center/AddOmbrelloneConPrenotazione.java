@@ -4,8 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -15,7 +13,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -26,26 +23,15 @@ import lab.utils.Utils;
 
 public class AddOmbrelloneConPrenotazione extends JDialog {
 
-	private final Connection connection;
-	private final int numeroOmbrellone;
-	private final int anno;
-	private final Date dataInizio;
-	private final JLabel alert;
-	private final JDialog dialog = this;
-
-
-	public AddOmbrelloneConPrenotazione(Grid grid, final Connection connection, Query query, final int numeroOmbrellone, final int anno,
+	public AddOmbrelloneConPrenotazione(final Grid grid, final Query query, final int numeroOmbrellone, final int anno,
 			final Date dataInizio, final Date dataFine) {
-		this.connection = connection;
-		this.numeroOmbrellone = numeroOmbrellone;
-		this.anno = anno;
-		this.dataInizio = dataInizio;
 		var mainPanel = new JPanel(new BorderLayout());
 		final var panel = new JPanel(new GridBagLayout());
-		panel.setPreferredSize(new Dimension(800,300));
+		mainPanel.setPreferredSize(new Dimension(800,300));
 		setTitle("Aggiungi prenotazione ombrellone");
 
 		Integer[] sedute = {0, 1, 2, 3, 4};
+		var dialog = this;
 		var cliente = new JLabel("Cliente:");
 		var codiceFiscale = new JButton("trova cliente");
 		var bagninoLabel = new JLabel("Bagnino:");
@@ -58,7 +44,7 @@ public class AddOmbrelloneConPrenotazione extends JDialog {
 		var sdraio = new JComboBox<Integer>(sedute);
 		var costo = new JLabel("Prezzo:");
 		var prezzo = new JTextField("000,00", 16);
-		this.alert = new JLabel();
+		var alert = new JLabel();
 		var button = new JButton("AFFITTA");
 		var removePostazioneOmbrellone = new JButton("Rimuovi postazione ombrellone in data: " + new SimpleDateFormat("dd/MM/yyyy").format(dataInizio));
 
