@@ -18,7 +18,7 @@ public class RightPanel extends JPanel {
 		final JButton addBagnino = new JButton("Aggiungi bagnino");
 		final JButton addCliente = new JButton("Aggiungi cliente");
 		
-		addBagnino.addActionListener(l -> new AddBagnino(connection));
+		addBagnino.addActionListener(l -> new AddBagnino(query));
 		addCliente.addActionListener(l -> {
 			try {
 				new AddCliente(connection, query);

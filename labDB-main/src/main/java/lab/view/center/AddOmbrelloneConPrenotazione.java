@@ -7,10 +7,12 @@ import java.awt.GridBagLayout;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -18,6 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import lab.db.Query;
+import lab.model.Bagnino;
 import lab.model.Cliente;
 import lab.utils.Utils;
 
@@ -28,6 +31,7 @@ public class AddOmbrelloneConPrenotazione extends JDialog {
 	private final int anno;
 	private final Date dataInizio;
 	private final JLabel alert;
+	private final JDialog dialog = this;
 
 
 	public AddOmbrelloneConPrenotazione(Grid grid, final Connection connection, Query query, final int numeroOmbrellone, final int anno,
@@ -39,36 +43,89 @@ public class AddOmbrelloneConPrenotazione extends JDialog {
 		var mainPanel = new JPanel(new BorderLayout());
 		final var panel = new JPanel(new GridBagLayout());
 		panel.setPreferredSize(new Dimension(800,300));
+		setTitle("Aggiungi prenotazione ombrellone");
 
+		Integer[] sedute = {0, 1, 2, 3, 4};
 		var cliente = new JLabel("Cliente:");
-//		final JTextField codiceFiscale = new JTextField(16);
 		var codiceFiscale = new JButton("trova cliente");
-		var bagnino = new JLabel("Bagnino:");
-		final JTextField codiceUnivoco = new JTextField("codice Bagnino", 16);
-		var sedute = new JLabel("Sedute:");
-		final JTextField lettini = new JTextField("n lettini");
-		final JTextField sedie = new JTextField("n sedie");
-		final JTextField sdraio = new JTextField("n sdraio");
-		var costo = new JLabel("Costo:");
-		final JTextField prezzo = new JTextField("000,00", 16);
+		var bagninoLabel = new JLabel("Bagnino:");
+		var bagnino = new JButton("trova bagnino");
+		var lettiniLabel = new JLabel("Lettini:");
+		var lettini = new JComboBox<Integer>(sedute);
+		var sedieLabel = new JLabel("Sedie:");
+		var sedie = new JComboBox<Integer>(sedute);
+		var sdraioLabel = new JLabel("Sdraio:");
+		var sdraio = new JComboBox<Integer>(sedute);
+		var costo = new JLabel("Prezzo:");
+		var prezzo = new JTextField("000,00", 16);
 		this.alert = new JLabel();
-		var removePostazioneOmbrellone = new JButton("Rimuovi postazione ombrellone");
-		final var button = new JButton("AFFITTA");
-		codiceFiscale.setPreferredSize(prezzo.getPreferredSize());
-		
-		
-	
+		var button = new JButton("AFFITTA");
+		var removePostazioneOmbrellone = new JButton("Rimuovi postazione ombrellone in data: " + new SimpleDateFormat("dd/MM/yyyy").format(dataInizio));
+
+		var prefSize = prezzo.getPreferredSize();
+		codiceFiscale.setPreferredSize(prefSize);
+		bagnino.setPreferredSize(prefSize);
+		lettini.setPreferredSize(prefSize);
+		sedie.setPreferredSize(prefSize);
+		sdraio.setPreferredSize(prefSize);
+
 		codiceFiscale.addActionListener(l -> {
-			List<Cliente> clienti;
 			try {
-				clienti = query.getClienti();
+				List<Cliente> clienti = query.getClienti();
+				new FoundCliente(clienti, codiceFiscale);
+			} catch (SQLException e) {
+				alert.setText("Riprova a cercare il cliente");
+				return;
+			}	
+		});
+
+		bagnino.addActionListener(l -> {
+			try {
+				List<Bagnino> bagnini = query.getBagnini();
+				new FoundBagnino(bagnini, bagnino);	
 			} catch (SQLException e) {
 				alert.setText("Riprova a cercare il cliente");
 				return;
 			}
-			new FoundCliente(clienti, codiceFiscale);	
 		});
-		
+
+		button.addActionListener(l -> {
+			try {
+				int nLettini = (int) lettini.getSelectedItem();
+				int nSedie = (int) sedie.getSelectedItem();
+				int nSdraio = (int) sdraio.getSelectedItem();
+				int n_sedute =  nLettini + nSedie + nSdraio;
+				if (n_sedute <= 0 || n_sedute > 4) {
+					throw new Exception();
+				}
+				if (!query.insertPrenotazioneOmbrellone(numeroOmbrellone, anno, dataInizio, dataFine, 
+						Double.parseDouble(prezzo.getText()), codiceFiscale.getText(), Integer.parseInt(bagnino.getText()))) {
+					throw new Exception();
+				}
+				if (nLettini > 0) {
+					if(!query.insertLettini(numeroOmbrellone, anno, dataInizio, nLettini)){
+						throw new Exception();
+					}
+				}
+				if (nSedie > 0) {
+					if(!query.insertSedie(numeroOmbrellone, anno, dataInizio, nSedie)){
+						throw new Exception();
+					}
+				}
+				if (nSdraio > 0) {
+					if(!query.insertSdraio(numeroOmbrellone, anno, dataInizio, nSdraio)){
+						throw new Exception();
+					}
+				}
+				grid.updateGrid();
+				alert.setText("Inserimento eseguito");
+				Utils.closeJDialogAfterOneSecond(dialog);
+			} catch (final Exception e) {
+				alert.setText("Inserimento non eseguito");
+				return;
+			}
+		});
+
 		removePostazioneOmbrellone.addActionListener(l -> {
 			try {
 				if (!query.removePostazioneOmbrellone(numeroOmbrellone, anno, new Date(dataInizio.getTime() - 86400000))) {
@@ -80,39 +137,7 @@ public class AddOmbrelloneConPrenotazione extends JDialog {
 				alert.setText("Giorno rimozione NON impostato");
 			}
 		});
-		
-		button.addActionListener(l -> {
-			//Inserimento OmbrelloneConPrenotazione
-			final String queryS = "INSERT INTO OmbrelloniConPrenotazione VALUES (?, ?, ?, ?, ?, ?, ?)";
-			try (final PreparedStatement statement = connection.prepareStatement(queryS)) {
-				statement.setInt(1, numeroOmbrellone);
-				statement.setInt(2, anno);
-				statement.setDate(3, Utils.dateToSqlDate(dataInizio));
-				statement.setDate(4, Utils.dateToSqlDate(dataFine));
-				statement.setDouble(5, Double.parseDouble(prezzo.getText()));
-				statement.setString(6, codiceFiscale.getText());
-				statement.setInt(7, Integer.parseInt(codiceUnivoco.getText()));
-				statement.executeUpdate();
-				alert.setText("Inserimento eseguito");
-			} catch (final Exception e) {
-				alert.setText("Inserimento non eseguito");
-				return;
-			}
-			//Inserimento Composizione
-			int n_lettini = Integer.parseInt(lettini.getText());
-			int n_sedie = Integer.parseInt(sedie.getText());
-			int n_sdraio = Integer.parseInt(sdraio.getText());
-			int n_sedute = n_lettini + n_sedie + n_sdraio;
-			if (n_sedute == 0 || n_sedute > 4) {
-				alert.setText("Dati inseriti non correttamente");
-				return;
-			}
-			inserimentoComposizione(1, n_lettini);
-			inserimentoComposizione(2, n_sedie);
-			inserimentoComposizione(3, n_sdraio);
-			grid.updateGrid();
 
-		});
 		var c = new GridBagConstraints();
 		int y = 0;
 		c.gridy = y;
@@ -121,14 +146,18 @@ public class AddOmbrelloneConPrenotazione extends JDialog {
 		panel.add(codiceFiscale, c);
 		c.gridy = ++y;
 		c.gridwidth = 1;
-		panel.add(bagnino, c);
+		panel.add(bagninoLabel, c);
 		c.gridwidth = 3;
-		panel.add(codiceUnivoco, c);
+		panel.add(bagnino, c);
 		c.gridy = ++y;
 		c.gridwidth = 1;
-		panel.add(sedute, c);
+		panel.add(lettiniLabel, c);
 		panel.add(lettini, c);
+		c.gridy = ++y;
+		panel.add(sedieLabel, c);
 		panel.add(sedie, c);
+		c.gridy = ++y;
+		panel.add(sdraioLabel, c);
 		panel.add(sdraio, c);
 		c.gridy = ++y;
 		panel.add(costo, c);
@@ -146,24 +175,6 @@ public class AddOmbrelloneConPrenotazione extends JDialog {
 		setResizable(false);
 		setLocationRelativeTo(null);
 		setVisible(true);
-	}
-
-	private void inserimentoComposizione(final int codiceSeduta, final int quantità) {
-		if (quantità <= 0) {
-			return;
-		}
-		final String query = "INSERT INTO Composizioni VALUES (?, ?, ?, ?, ?)";
-		try (final PreparedStatement statement = connection.prepareStatement(query)) {
-			statement.setInt(1, numeroOmbrellone);
-			statement.setInt(2, anno);
-			statement.setDate(3, Utils.dateToSqlDate(dataInizio));
-			statement.setInt(4, codiceSeduta);
-			statement.setInt(5, quantità);
-			statement.executeUpdate();
-			alert.setText("Inserimento eseguito");
-		} catch (final Exception e) {
-			alert.setText("Inserimento non eseguito");
-		}
 	}
 
 }

@@ -6,62 +6,84 @@ import java.awt.GridBagLayout;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.text.SimpleDateFormat;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
+import com.toedter.calendar.JDateChooser;
+
+import lab.db.Query;
 import lab.model.Bagnino;
 import lab.utils.Utils;
+import lab.view.utilities.MyJDateChooser;
 
 public class AddBagnino extends JDialog {
-	
-	public AddBagnino(final Connection connection) {
+
+	public AddBagnino(Query query) {
 		final var panel = new JPanel(new GridBagLayout());
 		panel.setPreferredSize(new Dimension(800,300));
-		final JTextField codiceFiscale = new JTextField("codiceFiscale");
-		final JTextField nome = new JTextField("nome");
-		final JTextField cognome = new JTextField("cognome");
-		final JTextField codiceUnivoco = new JTextField("codiceUnivoco");
-		final JTextField dataDiNascita = new JTextField("dd/MM/yyyy");
-		final JTextField indirizzo = new JTextField("indirizzo");
-		final JTextField telefono = new JTextField("telefono");
-		final JLabel alert = new JLabel();
-		final var button = new JButton("AGGIUNGI");
+		setTitle("Aggiungi Bagnino");
+		
+		var codiceFiscaleLabel = new JLabel("Codice fiscale:"); 
+		var codiceFiscale = new JTextField("codiceFiscale", 16);
+		var nomeLabel = new JLabel("Nome:");
+		var nome = new JTextField("nome", 16);
+		var cognomeLabel = new JLabel("Cognome:");
+		var cognome = new JTextField("cognome", 16);
+		var telefonoLabel = new JLabel("Telefono:");
+		var telefono = new JTextField("telefono", 16);
+		var dataNascitaLabel = new JLabel("Data di nascita:");
+		var dataNascita = new JDateChooser();
+		dataNascita.setPreferredSize(nome.getPreferredSize());
+		var indirizzoLabel = new JLabel("Indirizzo:");
+		var indirizzo = new JTextField("indirizzo", 16);
+		var button = new JButton("AGGIUNGI");
+		var alert = new JLabel();
+
 		button.addActionListener(l -> {
+
 			try {
 				var bagnino = new Bagnino(codiceFiscale.getText(), nome.getText(), cognome.getText(), 
-						Integer.parseInt(codiceUnivoco.getText()), new SimpleDateFormat("dd/MM/yyyy").parse(dataDiNascita.getText()), 
-						indirizzo.getText(), telefono.getText());
-				final String query = "INSERT INTO Bagnini VALUES (?,?,?,?,?,?,?)";
-		        try (final PreparedStatement statement = connection.prepareStatement(query)) {
-		            statement.setString(1, bagnino.getCodiceFiscale());
-		            statement.setString(2, bagnino.getNome());
-		            statement.setString(3, bagnino.getCognome());
-		            statement.setInt(4, bagnino.getCodiceUnivoco());
-		            statement.setDate(5, Utils.dateToSqlDate(bagnino.getDataDiNascita()));
-		            statement.setString(6, bagnino.getIndirizzo());
-		            statement.setString(7, bagnino.getTelefono());
-		            statement.executeUpdate();
-		            alert.setText("Inserimento eseguito");
-		        } catch (final Exception e) {
-		        	alert.setText("Inserimento non eseguito");
-		        }
-			} catch (Exception e) {
-				alert.setText("Dati inseriti non correttamente");
+						dataNascita.getDate(), indirizzo.getText(), telefono.getText());
+				if (!query.insertBagnino(bagnino)) {
+					throw new Exception();
+				}
+				alert.setText("Inserimento eseguito");
+				Utils.closeJDialogAfterOneSecond(this);
+
+			} catch (final Exception e) {
+				alert.setText("Inserimento non eseguito");
 			}
 		});
-		panel.add(codiceFiscale);
-		panel.add(nome);
-		panel.add(cognome);
-		panel.add(codiceUnivoco);
-		panel.add(dataDiNascita);
-		panel.add(indirizzo);
-		panel.add(telefono);
-		panel.add(button);
+
 		var c = new GridBagConstraints();
-		c.gridy=1;
-		c.gridwidth = 8;
+		c.gridy++;
+		panel.add(nomeLabel, c);
+		panel.add(nome, c);
+		c.gridy++;
+		panel.add(cognomeLabel, c);
+		panel.add(cognome, c);
+		c.gridy++;
+		panel.add(indirizzoLabel, c);
+		panel.add(indirizzo, c);
+		c.gridy++;
+		panel.add(telefonoLabel, c);
+		panel.add(telefono, c);
+		c.gridy++;
+		panel.add(codiceFiscaleLabel, c);
+		panel.add(codiceFiscale, c);
+		c.gridy++;
+		panel.add(dataNascitaLabel, c);
+		panel.add(dataNascita, c);
+		c.gridy++;
+		c.gridwidth = 2;
+		panel.add(button, c);
+		c.gridy++;
 		panel.add(alert, c);
 		add(panel);
 		pack();

@@ -33,6 +33,7 @@ public class AddPostazione extends JDialog {
 	public AddPostazione(Tipologia tip, Query query, Grid grid, int anno, int fila, int colonna, Date inizio) {
 		final var panel = new JPanel(new GridBagLayout());
 		panel.setPreferredSize(new Dimension(800,300));
+		setTitle("Aggiungi postazion" + tip.toString().toLowerCase());
 		var label = new JLabel(tip.toString());
 		var numero = new JComboBox<Integer>();
 		final JLabel alert = new JLabel();

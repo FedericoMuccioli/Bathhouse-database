@@ -93,7 +93,7 @@ public class Grid extends JPanel {
 						b.setBackground(Color.RED);
 						b.addActionListener(l -> {
 							try {
-								new VisualOmbrelloneConPrenotazione(connection,
+								new VisualOmbrelloneConPrenotazione(connection, query,
 										Integer.parseInt(b.getText()), anno, dataInizio, dataFine);
 							} catch (NumberFormatException | SQLException e) {
 								throw new IllegalStateException();

@@ -23,6 +23,8 @@ public class AddCliente extends JDialog {
 	public AddCliente(final Connection connection, Query query) throws SQLException {
 		final var panel = new JPanel(new GridBagLayout());
 		panel.setPreferredSize(new Dimension(800,300));
+		setTitle("Aggiungi Cliente");
+		
 		var codiceFiscaleLabel = new JLabel("Codice fiscale:"); 
 		var nomeLabel = new JLabel("Nome:");
 		var cognomeLabel = new JLabel("Cognome:");
@@ -31,7 +33,6 @@ public class AddCliente extends JDialog {
 		var codiceFiscale = new JTextField("codiceFiscale", 16);
 		final JTextField nome = new JTextField("nome", 16);
 		final JTextField cognome = new JTextField("cognome", 16);
-//		final JTextField tipoCliente = new JTextField("codiceTipoCliente", 16);
 		var tipoCliente = new JComboBox<TipoCliente>();
 		final JTextField telefono = new JTextField("telefono", 16);
 		final JLabel alert = new JLabel();
@@ -67,6 +68,7 @@ public class AddCliente extends JDialog {
 			}
 		});
 
+		//togliere y
 		var c = new GridBagConstraints();
 		int y = 0;
 		panel.add(nomeLabel, c);

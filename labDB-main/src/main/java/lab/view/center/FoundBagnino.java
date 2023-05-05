@@ -1,8 +1,6 @@
 package lab.view.center;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,62 +13,64 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-import lab.model.Cliente;
+import lab.model.Bagnino;
 import lab.view.utilities.MyDefaultTableCellRenderer;
 
-public class FoundCliente extends JDialog {
+public class FoundBagnino extends JDialog {
 
 	private final JTable table;
 	private final DefaultTableModel tableModel;
 	private final JTextField searchField;
-	private final List<Cliente> clienti;
+	private final List<Bagnino> bagnini;
 
-	public FoundCliente(List<Cliente> clienti, JButton codiceFiscale) {
+	public FoundBagnino(List<Bagnino> bagnino, JButton codiceUnivoco) {
 		super();
 		var panel = new JPanel(new BorderLayout());
 		panel.setPreferredSize(new Dimension(800,300));
-		setTitle("Trova cliente");
-		this.clienti = clienti;
+		setTitle("Trova bagnino");
+		this.bagnini = bagnino;
 		
         searchField = new JTextField();
-        searchField.addActionListener(e -> updateClients());
+        searchField.addActionListener(e -> updateBagnini());
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-            	updateClients();
+            	updateBagnini();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-            	updateClients();
+            	updateBagnini();
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                 updateClients();
+                 updateBagnini();
             }
         });
 
 		tableModel = new DefaultTableModel();
 		table = new JTable(tableModel);
 		table.getTableHeader().setDefaultRenderer(new MyDefaultTableCellRenderer());
-		tableModel.addColumn("codiceFiscale");
+		tableModel.addColumn("codiceUnivoco");
 		tableModel.addColumn("nome");
 		tableModel.addColumn("cognome");
 		tableModel.addColumn("telefono");
-		tableModel.addColumn("tipoCliente");
+		tableModel.addColumn("indirizzo");
+		tableModel.addColumn("dataNascita");
+		tableModel.addColumn("codiceFiscale");
 		
+		loadClientList(this.bagnini);
+
 		table.getSelectionModel().addListSelectionListener(e -> {
 			if (!e.getValueIsAdjusting() && table.getSelectedRow() != -1) {
-				codiceFiscale.setText((String) tableModel.getValueAt(table.getSelectedRow(), 0));
+				codiceUnivoco.setText(String.valueOf(tableModel.getValueAt(table.getSelectedRow(), 0)));
 				dispose();
 			}
 		});
 
-		loadClientList(this.clienti);
 		panel.add(searchField, BorderLayout.NORTH);
 		panel.add(new JScrollPane(table));
 		add(panel);
@@ -80,26 +80,26 @@ public class FoundCliente extends JDialog {
 		setVisible(true);
 	}
 	
-    private void updateClients() {
+    private void updateBagnini() {
         String searchText = searchField.getText().toLowerCase();
-        List<Cliente> filteredClients = new ArrayList<>();
-        for (Cliente cliente : clienti) {
-            if (cliente.getCodiceFiscale().toLowerCase().contains(searchText) || 
-            		cliente.getNome().toLowerCase().contains(searchText) ||
-                    cliente.getCognome().toLowerCase().contains(searchText) ||
-                    cliente.getTelefono().toLowerCase().contains(searchText) ||
-            		cliente.getTipoCliente().toLowerCase().contains(searchText)){
-                filteredClients.add(cliente);
+        List<Bagnino> filteredClients = new ArrayList<>();
+        for (Bagnino bagnino : bagnini) {
+            if (bagnino.getCodiceFiscale().toLowerCase().contains(searchText) || 
+            		bagnino.getNome().toLowerCase().contains(searchText) ||
+                    bagnino.getCognome().toLowerCase().contains(searchText) ||
+                    bagnino.getTelefono().toLowerCase().contains(searchText) ||
+            		bagnino.getIndirizzo().toLowerCase().contains(searchText)){
+                filteredClients.add(bagnino);
             }
         }
         loadClientList(filteredClients);
     }
     
-	private void loadClientList(List<Cliente> clientiList) {
+	private void loadClientList(List<Bagnino> bagninoList) {
 		tableModel.setRowCount(0);
 
-		for (Cliente cliente : clientiList) {
-			Object[] rowData = {cliente.getCodiceFiscale(), cliente.getNome(), cliente.getCognome(), cliente.getTelefono(), cliente.getTipoCliente()};
+		for (Bagnino bagnino : bagninoList) {
+			Object[] rowData = {bagnino.getCodiceUnivoco(), bagnino.getNome(), bagnino.getCognome(), bagnino.getTelefono(), bagnino.getIndirizzo(), bagnino.getDataNascita(), bagnino.getCodiceFiscale()};
 			tableModel.addRow(rowData);
 		}
 	}

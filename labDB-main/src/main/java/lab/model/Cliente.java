@@ -40,8 +40,10 @@ public class Cliente {
 
     @Override
 	public String toString() {
-		return "Bagnino [codiceFiscale=" + codiceFiscale + ", nome=" + nome + ", cognome=" + cognome
-				+ ", tipoCliente=" + tipoCliente + ", telefono=" + telefono + "]";
+    	String s = " ";
+    	return nome.concat(s).concat(cognome).concat(s).concat(tipoCliente).concat(s).concat(telefono).concat(s).concat(codiceFiscale);
+//		return "Bagnino [codiceFiscale=" + codiceFiscale + ", nome=" + nome + ", cognome=" + cognome
+//				+ ", tipoCliente=" + tipoCliente + ", telefono=" + telefono + "]";
 	}
 
 	@Override

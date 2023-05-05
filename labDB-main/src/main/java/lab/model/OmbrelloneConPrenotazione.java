@@ -10,71 +10,71 @@ public class OmbrelloneConPrenotazione {
     private final Date dataInizio;
     private final Date dataFine;
     private final double prezzo;
-    private final String codiceFiscaleCliente;
-    private final int codiceUnivocoBagnino;
+    private final int nLettini;
+    private final int nSedie;
+    private final int nSdraio;
+    private final Cliente cliente;
+    private final Bagnino bagnino;
     
     
-	public OmbrelloneConPrenotazione(int numeroOmbrellone, int anno, Date dataInizio, Date dataFine, double prezzo,
-			String codiceFiscaleCliente, int codiceUnivocoBagnino) {
-		super();
+	public OmbrelloneConPrenotazione(int numeroOmbrellone, int anno, Date dataInizio, Date dataFine, double prezzo, int nLettini, int nSedie, int nSdraio, Cliente cliente, Bagnino bagnino) {
 		this.numeroOmbrellone = numeroOmbrellone;
 		this.anno = anno;
 		this.dataInizio = dataInizio;
 		this.dataFine = dataFine;
 		this.prezzo = prezzo;
-		this.codiceFiscaleCliente = codiceFiscaleCliente;
-		this.codiceUnivocoBagnino = codiceUnivocoBagnino;
+		this.nLettini = nLettini;
+		this.nSedie = nSedie;
+		this.nSdraio = nSdraio;
+		this.cliente = cliente;
+		this.bagnino = bagnino;
 	}
-	
+
+
 	public int getNumeroOmbrellone() {
 		return numeroOmbrellone;
 	}
+
+
 	public int getAnno() {
 		return anno;
 	}
+
+
 	public Date getDataInizio() {
 		return dataInizio;
 	}
+
+
 	public Date getDataFine() {
 		return dataFine;
 	}
 
+
 	public double getPrezzo() {
 		return prezzo;
 	}
-	public String getCodiceFiscaleCliente() {
-		return codiceFiscaleCliente;
-	}
-	public int getCodiceUnivocoBagnino() {
-		return codiceUnivocoBagnino;
-	}
-    
-	@Override
-	public String toString() {
-		return "OmbrelloneConPrenotazione [numeroOmbrellone=" + numeroOmbrellone + ", anno=" + anno + ", dataInizio="
-				+ dataInizio + ", dataFine=" + dataFine + ", prezzo=" + prezzo + ", codiceFiscaleCliente="
-				+ codiceFiscaleCliente + ", codiceUnivocoBagnino=" + codiceUnivocoBagnino + "]";
+
+	public int getnLettini() {
+		return nLettini;
 	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(anno, codiceFiscaleCliente, codiceUnivocoBagnino, dataFine, dataInizio, numeroOmbrellone,
-				prezzo);
+
+	public int getnSedie() {
+		return nSedie;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		OmbrelloneConPrenotazione other = (OmbrelloneConPrenotazione) obj;
-		return anno == other.anno && Objects.equals(codiceFiscaleCliente, other.codiceFiscaleCliente)
-				&& codiceUnivocoBagnino == other.codiceUnivocoBagnino && Objects.equals(dataFine, other.dataFine)
-				&& Objects.equals(dataInizio, other.dataInizio) && numeroOmbrellone == other.numeroOmbrellone
-				&& Double.doubleToLongBits(prezzo) == Double.doubleToLongBits(other.prezzo);
+
+	public int getnSdraio() {
+		return nSdraio;
 	}
-    
+	
+	public Cliente getCliente() {
+		return cliente;
+	}
+	
+	public Bagnino getBagnino() {
+		return bagnino;
+	}
+	    
 }

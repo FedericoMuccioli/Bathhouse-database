@@ -4,6 +4,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.swing.JDialog;
 
 public final class Utils {
     private Utils() {}
@@ -25,5 +29,14 @@ public final class Utils {
         } catch (final ParseException e) {
             return Optional.empty();
         }
+    }
+    
+    public static void closeJDialogAfterOneSecond(JDialog dialog) {
+    	new Timer().schedule(new TimerTask() {
+			@Override
+			public void run() {
+				dialog.dispose();
+			}
+		}, 1000);
     }
 }
