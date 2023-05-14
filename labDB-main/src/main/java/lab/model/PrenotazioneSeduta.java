@@ -12,10 +12,10 @@ public class PrenotazioneSeduta {
     private final double prezzo;
     private final TipoSeduta tipoSeduta;
     private final Cliente cliente;
-    private final Bagnino bagnino;
+    private final Dipendente bagnino;
     
     
-	public PrenotazioneSeduta(int numeroOmbrellone, int anno, Date dataInizio, Date dataFine, double prezzo, TipoSeduta tipoSeduta, Cliente cliente, Bagnino bagnino) {
+	public PrenotazioneSeduta(int numeroOmbrellone, int anno, Date dataInizio, Date dataFine, double prezzo, TipoSeduta tipoSeduta, Cliente cliente, Dipendente bagnino) {
 		this.numeroSeduta = numeroOmbrellone;
 		this.anno = anno;
 		this.dataInizio = dataInizio;
@@ -59,7 +59,7 @@ public class PrenotazioneSeduta {
 		return cliente;
 	}
 	
-	public Bagnino getBagnino() {
+	public Dipendente getBagnino() {
 		return bagnino;
 	}
 	    

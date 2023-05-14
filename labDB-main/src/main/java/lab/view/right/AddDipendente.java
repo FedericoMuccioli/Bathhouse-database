@@ -18,17 +18,18 @@ import javax.swing.JTextField;
 import com.toedter.calendar.JDateChooser;
 
 import lab.db.Query;
-import lab.model.Bagnino;
+import lab.model.Dipendente;
+import lab.model.Dipendente.TipoDipendente;
 import lab.utils.Utils;
 import lab.view.utilities.MyJDateChooser;
 
-public class AddBagnino extends JDialog {
+public class AddDipendente extends JDialog {
 
-	public AddBagnino(final Query query) {
+	public AddDipendente(final Query query, TipoDipendente tipo) {
 		final var panel = new JPanel(new GridBagLayout());
 		panel.setPreferredSize(new Dimension(800,300));
-		setTitle("Aggiungi Bagnino");
-		
+		setTitle("Aggiungi " + tipo.toString());
+
 		var codiceFiscaleLabel = new JLabel("Codice fiscale:"); 
 		var codiceFiscale = new JTextField("codiceFiscale", 16);
 		var nomeLabel = new JLabel("Nome:");
@@ -48,10 +49,16 @@ public class AddBagnino extends JDialog {
 		button.addActionListener(l -> {
 
 			try {
-				var bagnino = new Bagnino(codiceFiscale.getText(), nome.getText(), cognome.getText(), 
+				var dipendente = new Dipendente(codiceFiscale.getText(), nome.getText(), cognome.getText(), 
 						dataNascita.getDate(), indirizzo.getText(), telefono.getText());
-				if (!query.insertBagnino(bagnino)) {
-					throw new Exception();
+				if (tipo == TipoDipendente.Bagnino) {
+					if (!query.insertBagnino(dipendente)) {
+						throw new Exception();
+					}
+				} else if (tipo == TipoDipendente.Barista) {
+					if (!query.insertBarista(dipendente)) {
+						throw new Exception();
+					}
 				}
 				alert.setText("Inserimento eseguito");
 				Utils.closeJDialogAfterOneSecond(this);

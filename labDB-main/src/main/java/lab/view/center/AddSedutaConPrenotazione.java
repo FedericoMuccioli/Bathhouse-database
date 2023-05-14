@@ -20,7 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import lab.db.Query;
-import lab.model.Bagnino;
+import lab.model.Dipendente;
 import lab.model.Cliente;
 import lab.model.TipoSeduta;
 import lab.utils.Utils;
@@ -68,7 +68,7 @@ public class AddSedutaConPrenotazione extends JDialog {
 
 		bagnino.addActionListener(l -> {
 			try {
-				List<Bagnino> bagnini = query.getBagnini();
+				List<Dipendente> bagnini = query.getBagnini();
 				new FoundBagnino(bagnini, bagnino);	
 			} catch (SQLException e) {
 				alert.setText("Riprova a cercare il bagnino");

@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import lab.model.Bagnino;
+import lab.model.Dipendente;
 import lab.model.Cliente;
 import lab.model.PrenotazioneOmbrellone;
 import lab.model.PrenotazioneSeduta;
@@ -123,7 +123,7 @@ public class Query {
 		return true;
 	}
 
-	public boolean insertBagnino(Bagnino bagnino) throws SQLException {
+	public boolean insertBagnino(Dipendente bagnino) throws SQLException {
 		String query = "INSERT INTO Bagnini (codiceFiscale, nome, cognome, dataDiNascita, indirizzo, telefono) VALUES (?, ?, ?, ?, ?, ?)";
 		PreparedStatement statement = connection.prepareStatement(query);
 		int i = 1;
@@ -133,6 +133,22 @@ public class Query {
 		statement.setDate(i++, Utils.dateToSqlDate(bagnino.getDataNascita()));
 		statement.setString(i++, bagnino.getIndirizzo());
 		statement.setString(i++, bagnino.getTelefono());
+		if (statement.executeUpdate() == 0) {
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean insertBarista(Dipendente barista) throws SQLException {
+		String query = "INSERT INTO Baristi (codiceFiscale, nome, cognome, dataDiNascita, indirizzo, telefono) VALUES (?, ?, ?, ?, ?, ?)";
+		PreparedStatement statement = connection.prepareStatement(query);
+		int i = 1;
+		statement.setString(i++, barista.getCodiceFiscale());
+		statement.setString(i++, barista.getNome());
+		statement.setString(i++, barista.getCognome());
+		statement.setDate(i++, Utils.dateToSqlDate(barista.getDataNascita()));
+		statement.setString(i++, barista.getIndirizzo());
+		statement.setString(i++, barista.getTelefono());
 		if (statement.executeUpdate() == 0) {
 			return false;
 		}
@@ -256,12 +272,12 @@ public class Query {
 		return clienti;
 	}
 
-	public List<Bagnino> getBagnini() throws SQLException {
+	public List<Dipendente> getBagnini() throws SQLException {
 		String query = "SELECT * FROM Bagnini";
 		ResultSet rs = connection.createStatement().executeQuery(query);
-		var bagnini = new ArrayList<Bagnino>();
+		var bagnini = new ArrayList<Dipendente>();
 		while (rs.next()) {
-			bagnini.add(new Bagnino(rs.getString("codiceFiscale"),  rs.getString("nome"), rs.getString("cognome"), rs.getInt("codiceUnivoco"), rs.getDate("dataDiNascita") ,rs.getString("indirizzo"), rs.getString("telefono")));
+			bagnini.add(new Dipendente(rs.getString("codiceFiscale"),  rs.getString("nome"), rs.getString("cognome"), rs.getInt("codiceUnivoco"), rs.getDate("dataDiNascita") ,rs.getString("indirizzo"), rs.getString("telefono")));
 		}
 		return bagnini;
 	}
@@ -315,7 +331,7 @@ public class Query {
 			}
 			var tipoCliente = new TipoCliente(rs.getInt("codiceTipoCliente"), rs.getString("tipoCliente"));
 			var cliente = new Cliente(rs.getString("codiceFiscaleCliente"), rs.getString("nomeCliente"), rs.getString("cognomeCliente"), rs.getString("telefonoCliente"), tipoCliente);
-			var bagnino = new Bagnino(rs.getString("codiceFiscaleBagnino"), rs.getString("nomeBagnino"), rs.getString("cognomeBagnino"), rs.getInt("codiceUnivoco"), rs.getDate("dataDiNascita"), rs.getString("indirizzo"), rs.getString("telefonoBagnino"));
+			var bagnino = new Dipendente(rs.getString("codiceFiscaleBagnino"), rs.getString("nomeBagnino"), rs.getString("cognomeBagnino"), rs.getInt("codiceUnivoco"), rs.getDate("dataDiNascita"), rs.getString("indirizzo"), rs.getString("telefonoBagnino"));
 			var ombrelloneConPrenotazione = new PrenotazioneOmbrellone(numeroOmbrellone, anno, rs.getDate("dataInizio"), rs.getDate("dataFine"), rs.getDouble("prezzo"), 
 					lettini, sedie, sdraio, cliente, bagnino);
 			prenotazioniOmbrellone.add(ombrelloneConPrenotazione);
@@ -347,7 +363,7 @@ public class Query {
 			var tipoSeduta = new TipoSeduta(rs.getInt("codiceTipoSeduta"), rs.getString("nomeSeduta"), rs.getString("descrizioneSeduta"));
 			var tipoCliente = new TipoCliente(rs.getInt("codiceTipoCliente"), rs.getString("tipoCliente"));
 			var cliente = new Cliente(rs.getString("codiceFiscaleCliente"), rs.getString("nomeCliente"), rs.getString("cognomeCliente"), rs.getString("telefonoCliente"), tipoCliente);
-			var bagnino = new Bagnino(rs.getString("codiceFiscaleBagnino"), rs.getString("nomeBagnino"), rs.getString("cognomeBagnino"), rs.getInt("codiceUnivoco"), rs.getDate("dataDiNascita"), rs.getString("indirizzo"), rs.getString("telefonoBagnino"));
+			var bagnino = new Dipendente(rs.getString("codiceFiscaleBagnino"), rs.getString("nomeBagnino"), rs.getString("cognomeBagnino"), rs.getInt("codiceUnivoco"), rs.getDate("dataDiNascita"), rs.getString("indirizzo"), rs.getString("telefonoBagnino"));
 			var ombrelloneConPrenotazione = new PrenotazioneSeduta(numeroSeduta, anno, rs.getDate("dataInizio"), rs.getDate("dataFine"), rs.getDouble("prezzo"), 
 					tipoSeduta, cliente, bagnino);
 			prenotazioniSeduta.add(ombrelloneConPrenotazione);

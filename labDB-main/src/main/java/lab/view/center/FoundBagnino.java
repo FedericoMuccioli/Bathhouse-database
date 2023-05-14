@@ -15,7 +15,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 
-import lab.model.Bagnino;
+import lab.model.Dipendente;
 import lab.view.utilities.MyDefaultTableCellRenderer;
 
 public class FoundBagnino extends JDialog {
@@ -23,9 +23,9 @@ public class FoundBagnino extends JDialog {
 	private final JTable table;
 	private final DefaultTableModel tableModel;
 	private final JTextField searchField;
-	private final List<Bagnino> bagnini;
+	private final List<Dipendente> bagnini;
 
-	public FoundBagnino(List<Bagnino> bagnino, JButton codiceUnivoco) {
+	public FoundBagnino(List<Dipendente> bagnino, JButton codiceUnivoco) {
 		super();
 		var panel = new JPanel(new BorderLayout());
 		panel.setPreferredSize(new Dimension(800,300));
@@ -82,8 +82,8 @@ public class FoundBagnino extends JDialog {
 	
     private void updateBagnini() {
         String searchText = searchField.getText().toLowerCase();
-        List<Bagnino> filteredClients = new ArrayList<>();
-        for (Bagnino bagnino : bagnini) {
+        List<Dipendente> filteredClients = new ArrayList<>();
+        for (Dipendente bagnino : bagnini) {
             if (bagnino.getCodiceFiscale().toLowerCase().contains(searchText) || 
             		bagnino.getNome().toLowerCase().contains(searchText) ||
                     bagnino.getCognome().toLowerCase().contains(searchText) ||
@@ -95,10 +95,10 @@ public class FoundBagnino extends JDialog {
         loadClientList(filteredClients);
     }
     
-	private void loadClientList(List<Bagnino> bagninoList) {
+	private void loadClientList(List<Dipendente> bagninoList) {
 		tableModel.setRowCount(0);
 
-		for (Bagnino bagnino : bagninoList) {
+		for (Dipendente bagnino : bagninoList) {
 			Object[] rowData = {bagnino.getCodiceUnivoco(), bagnino.getNome(), bagnino.getCognome(), bagnino.getTelefono(), bagnino.getIndirizzo(), bagnino.getDataNascita(), bagnino.getCodiceFiscale()};
 			tableModel.addRow(rowData);
 		}

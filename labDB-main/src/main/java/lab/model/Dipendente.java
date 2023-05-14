@@ -3,7 +3,10 @@ package lab.model;
 import java.util.Date;
 import java.util.Objects;
 
-public class Bagnino {
+public class Dipendente {
+	
+	public enum TipoDipendente {Bagnino, Barista};
+	
     private final String codiceFiscale;
     private final String nome;
     private final String cognome;
@@ -12,7 +15,7 @@ public class Bagnino {
     private final String indirizzo;
     private final String telefono;
     
-    public Bagnino(final String codiceFiscale, final String nome, final String cognome, final int codiceUnivoco,
+    public Dipendente(final String codiceFiscale, final String nome, final String cognome, final int codiceUnivoco,
     		final Date dataNascita, final String indirizzo, final String telefono) {
         this.codiceFiscale = codiceFiscale;
         this.nome = Objects.requireNonNull(nome);
@@ -23,7 +26,7 @@ public class Bagnino {
         this.telefono = Objects.requireNonNull(telefono);
     }
     
-    public Bagnino(final String codiceFiscale, final String nome, final String cognome,
+    public Dipendente(final String codiceFiscale, final String nome, final String cognome,
     		final Date dataNascita, final String indirizzo, final String telefono) {
     	this(codiceFiscale, nome, cognome, -1, dataNascita, indirizzo, telefono);
     }
@@ -70,7 +73,7 @@ public class Bagnino {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Bagnino other = (Bagnino) obj;
+		Dipendente other = (Dipendente) obj;
 		return Objects.equals(codiceFiscale, other.codiceFiscale) && codiceUnivoco == other.codiceUnivoco
 				&& Objects.equals(cognome, other.cognome) && Objects.equals(dataNascita, other.dataNascita)
 				&& Objects.equals(indirizzo, other.indirizzo) && Objects.equals(nome, other.nome)

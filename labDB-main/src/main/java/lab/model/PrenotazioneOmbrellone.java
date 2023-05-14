@@ -14,10 +14,10 @@ public class PrenotazioneOmbrellone {
     private final int nSedie;
     private final int nSdraio;
     private final Cliente cliente;
-    private final Bagnino bagnino;
+    private final Dipendente bagnino;
     
     
-	public PrenotazioneOmbrellone(int numeroOmbrellone, int anno, Date dataInizio, Date dataFine, double prezzo, int nLettini, int nSedie, int nSdraio, Cliente cliente, Bagnino bagnino) {
+	public PrenotazioneOmbrellone(int numeroOmbrellone, int anno, Date dataInizio, Date dataFine, double prezzo, int nLettini, int nSedie, int nSdraio, Cliente cliente, Dipendente bagnino) {
 		this.numeroOmbrellone = numeroOmbrellone;
 		this.anno = anno;
 		this.dataInizio = dataInizio;
@@ -73,7 +73,7 @@ public class PrenotazioneOmbrellone {
 		return cliente;
 	}
 	
-	public Bagnino getBagnino() {
+	public Dipendente getBagnino() {
 		return bagnino;
 	}
 	    
