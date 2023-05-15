@@ -6,17 +6,21 @@ import java.awt.GridBagLayout;
 import java.sql.SQLException;
 
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 
 import lab.db.Query;
-import lab.model.Cliente;
-import lab.model.TipoCliente;
+import lab.model.FasciaOraria;
+import lab.model.Prodotto;
+import lab.model.TipoProdotto;
 import lab.utils.Utils;
 
 public class AddProdottoBar extends JDialog {
@@ -27,29 +31,48 @@ public class AddProdottoBar extends JDialog {
 		setTitle("Aggiungi Prodotto Bar");
 
 		var nomeLabel = new JLabel("Nome:");
-		var descrizioneLabel = new JLabel("Descrizione:");
-		var prezzoLabel = new JLabel("Prezzo:");
-		var tipoLabel = new JLabel("Tipo:");
 		var nome = new JTextField("nome", 16);
-		var descrizione = new JTextArea();
-		var tipoProdotto = new JComboBox<TipoCliente>();
-		var prezzo = new JTextField("telefono", 16);
+		var descrizioneLabel = new JLabel("Descrizione:");
+		var descrizione = new JTextField("descrizione", 16);
+		var tipoLabel = new JLabel("Tipo:");
+		var tipoProdotto = new JComboBox<TipoProdotto>();
+		var fasciaOrariaLabel = new JLabel("Fascia oraria:");
+		var fasciaOrariaModel = new DefaultListModel<FasciaOraria>();
+		var fasciaOraria = new JList<FasciaOraria>(fasciaOrariaModel);
+		var fasciaOrariaPanel = new JScrollPane(fasciaOraria);
+		var prezzoLabel = new JLabel("Prezzo:");
+		var prezzo = new JTextField("000.00", 16);
 		var alert = new JLabel();
 		var button = new JButton("AGGIUNGI");
-
-		tipoProdotto.setModel(new DefaultComboBoxModel<TipoCliente>(query.getTipiClienti().toArray(new TipoCliente[0])));
+		
 		tipoProdotto.setPreferredSize(prezzo.getPreferredSize());
+		Dimension dim = prezzo.getPreferredSize();
+		dim.height *= 2;
+		fasciaOrariaPanel.setPreferredSize(dim);
+		fasciaOrariaPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		
+		tipoProdotto.setModel(new DefaultComboBoxModel<TipoProdotto>(query.getTipiProdotti().toArray(new TipoProdotto[0])));
+		fasciaOrariaModel.addAll(query.getFasceOrarie());
+		fasciaOrariaModel.add(0, new FasciaOraria(null, null));
+		fasciaOraria.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		fasciaOraria.setSelectedIndex(0);
 
-//		button.addActionListener(l -> {
-//			try {
-//				Cliente cliente = new Cliente(codiceFiscale.getText(), nome.getText(), descrizione.getText(), prezzo.getText(), (TipoCliente) tipoProdotto.getSelectedItem());
-//				query.insertCliente(cliente);
-//				alert.setText("Inserimento eseguito");
-//				Utils.closeJDialogAfterOneSecond(this);
-//			} catch (final Exception e) {
-//				alert.setText("Inserimento non eseguito");
-//			}
-//		});
+
+		button.addActionListener(l -> {
+			try {
+				Prodotto prodotto = new Prodotto(nome.getText(), descrizione.getText(), (TipoProdotto) tipoProdotto.getSelectedItem(), null, Double.parseDouble(prezzo.getText()));
+				query.insertProdotto(prodotto);
+				
+				if (!fasciaOraria.isSelectedIndex(0)) {
+					query.insertDisponibilità(prodotto, fasciaOraria.getSelectedValuesList());
+				}
+				
+				alert.setText("Inserimento eseguito");
+				Utils.closeJDialogAfterOneSecond(this);
+			} catch (final Exception e) {
+				alert.setText("Inserimento non eseguito");
+			}
+		});
 
 		var c = new GridBagConstraints();
 		c.gridy = 0;
@@ -60,10 +83,13 @@ public class AddProdottoBar extends JDialog {
 		panel.add(descrizione, c);
 		c.gridy++;
 		panel.add(tipoLabel, c);
-		panel.add(prezzo, c);
+		panel.add(tipoProdotto, c);
+		c.gridy++;
+		panel.add(fasciaOrariaLabel, c);
+		panel.add(fasciaOrariaPanel, c);
 		c.gridy++;
 		panel.add(prezzoLabel, c);
-		panel.add(tipoProdotto, c);
+		panel.add(prezzo, c);
 		c.gridy++;
 		c.gridwidth = 2;
 		panel.add(button, c);

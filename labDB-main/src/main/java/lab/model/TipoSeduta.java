@@ -1,3 +1,5 @@
+
+
 package lab.model;
 
 public class TipoSeduta {

@@ -15,9 +15,9 @@ import javax.swing.table.DefaultTableModel;
 import lab.db.Query;
 import lab.view.utilities.MyDefaultTableCellRenderer;
 
-public class VisualOmbrelloneConPrenotazione extends JDialog {
+public class AddOrdine extends JDialog {
 
-	public VisualOmbrelloneConPrenotazione(Query query, int numeroOmbrellone, int anno, Date dataInizio, Date dataFine) {
+	public AddOrdine(Query query, int numeroOmbrellone, int anno, final Date dataInizio) {
 		var panel = new JPanel(new BorderLayout());
 		panel.setPreferredSize(new Dimension(800,300));
 		setTitle("Prenotazioni ombrellone:" + String.valueOf(numeroOmbrellone));

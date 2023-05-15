@@ -31,9 +31,9 @@ public class RightPanel extends JPanel {
 			try {
 				new AddProdottoBar(query);
 			} catch (SQLException e) {
+				e.printStackTrace();
 			}
 		});
-		
 		
 		var c = new GridBagConstraints();
 		c.gridy=1;

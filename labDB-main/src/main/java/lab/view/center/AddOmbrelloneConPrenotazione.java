@@ -43,7 +43,7 @@ public class AddOmbrelloneConPrenotazione extends JDialog {
 		var sdraioLabel = new JLabel("Sdraio:");
 		var sdraio = new JComboBox<Integer>(sedute);
 		var costo = new JLabel("Prezzo:");
-		var prezzo = new JTextField("000,00", 16);
+		var prezzo = new JTextField("000.00", 16);
 		var alert = new JLabel();
 		var button = new JButton("AFFITTA");
 		var removePostazioneOmbrellone = new JButton("Rimuovi postazione ombrellone in data: " + new SimpleDateFormat("dd/MM/yyyy").format(dataInizio));
