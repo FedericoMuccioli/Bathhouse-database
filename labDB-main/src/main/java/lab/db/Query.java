@@ -316,6 +316,16 @@ public class Query {
 		}
 		return bagnini;
 	}
+	
+	public List<Dipendente> getBaristi() throws SQLException {
+		String query = "SELECT * FROM Baristi";
+		ResultSet rs = connection.createStatement().executeQuery(query);
+		var baristi = new ArrayList<Dipendente>();
+		while (rs.next()) {
+			baristi.add(new Dipendente(rs.getString("codiceFiscale"),  rs.getString("nome"), rs.getString("cognome"), rs.getInt("codiceUnivoco"), rs.getDate("dataDiNascita") ,rs.getString("indirizzo"), rs.getString("telefono")));
+		}
+		return baristi;
+	}
 
 	public List<FasciaOraria> getFasceOrarie() throws SQLException {
 		String query = "SELECT * FROM FasceOrarie";
@@ -325,6 +335,28 @@ public class Query {
 			fasceOrarie.add(new FasciaOraria(rs.getInt("id"), rs.getTime("inizio"), rs.getTime("fine")));
 		}
 		return fasceOrarie;
+	}
+	
+	public List<FasciaOraria> getFasceOrarie(int idProdotto) throws SQLException {
+		String query = "SELECT f.* FROM Disponibilita d JOIN FasceOrarie f ON d.idFasciaOraria = f.id WHERE d.idProdotto = ?";
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setInt(1, idProdotto);
+		ResultSet rs = statement.executeQuery();
+		var fasceOrarie = new ArrayList<FasciaOraria>();
+		while (rs.next()) {
+			fasceOrarie.add(new FasciaOraria(rs.getInt("id"), rs.getTime("inizio"), rs.getTime("fine")));
+		}
+		return fasceOrarie;
+	}
+	
+	public List<Prodotto> getProdotti() throws SQLException {
+		String query = "SELECT * FROM Prodotti";
+		ResultSet rs = connection.createStatement().executeQuery(query);
+		var prodotti = new ArrayList<Prodotto>();
+		while (rs.next()) {
+			prodotti.add(new Prodotto(rs.getInt("id"), rs.getString("nome"), rs.getString("descrizione"), getTipoProdotto(rs.getInt("idTipo")), getFasceOrarie(rs.getInt("id")), rs.getDouble("prezzo")));
+		}
+		return prodotti;
 	}
 
 	public List<TipoCliente> getTipiClienti() throws SQLException {
@@ -355,6 +387,17 @@ public class Query {
 			tipiProdotti.add(new TipoProdotto(rs.getInt("id"),  rs.getString("tipo"), rs.getString("descrizione")));
 		}
 		return tipiProdotti;
+	}
+	
+	public TipoProdotto getTipoProdotto(int id) throws SQLException {
+		String query = "SELECT * FROM TipiProdotto WHERE id = ?";
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setInt(1, id);
+		ResultSet rs = statement.executeQuery();
+		if (rs.next()) {
+			return new TipoProdotto(id, rs.getString("tipo"), rs.getString("descrizione"));
+		}
+		return null;
 	}
 
 

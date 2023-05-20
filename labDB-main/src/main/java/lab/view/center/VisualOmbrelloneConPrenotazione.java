@@ -2,6 +2,7 @@ package lab.view.center;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.sql.SQLException;
 import java.util.Date;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -56,9 +57,11 @@ public class VisualOmbrelloneConPrenotazione extends JDialog {
 		        if (!e.getValueIsAdjusting()) {
 		            int selectedRow = table.getSelectedRow();
 		            if (selectedRow != -1) {
-		            	
-		                Date dataInizio = (Date) tableModel.getValueAt(selectedRow, 0);
-		                
+		            	try {
+							new AddOrdine(query, anno, numeroOmbrellone, (Date) tableModel.getValueAt(selectedRow, 0));
+						} catch (SQLException e1) {
+							alert.setText("Errore, riprovare");
+						}
 		            }
 		        }
 		    }

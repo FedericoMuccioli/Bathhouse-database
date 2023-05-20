@@ -48,10 +48,10 @@ public class Prodotto {
 		return prezzo;
 	}
 
-//    @Override
-//	public String toString() {
-//    	String s = " ";
-//    	return nome.concat(s).concat(descrizione).concat(s).concat(tipoCliente.toString()).concat(telefono.isBlank() ? "" : s + telefono).concat(s).concat(codiceFiscale);	
-//    }
+    @Override
+	public String toString() {
+    	String s = " ";
+    	return nome.concat(s).concat(descrizione).concat(s).concat(tipo.toString()).concat(s).concat(String.valueOf(prezzo));	
+    }
 	
 }
