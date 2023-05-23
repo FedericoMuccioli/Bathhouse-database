@@ -77,6 +77,13 @@ public class Ordine {
 
 	public Date getDataInizio() {
 		return dataInizio;
+	}
+
+	@Override
+	public String toString() {
+		return "Id:" + idOrdine + ", Ombrellone:"
+				+ numeroOmbrellone + ", DataOrdine:" + dataOrdine + "_" + oraConsegna
+				+ ", Prezzo:" + prezzo + "€, Barista:" + barista;
 	} 
 
 }

@@ -24,6 +24,7 @@ import lab.model.PostazioneOmbrellone;
 import lab.model.TipoCliente;
 import lab.model.TipoProdotto;
 import lab.model.TipoSeduta;
+import lab.utils.Pair;
 import lab.utils.Utils;
 
 public class Query {
@@ -393,6 +394,18 @@ public class Query {
 		}
 		return prodotti;
 	}
+	
+	public List<Pair<Prodotto, Integer>> getProdotti(Ordine ordine) throws SQLException {
+		String query = "SELECT P.*, C.quantita FROM Prodotti P JOIN ComposizioniOrdini C ON P.id = C.idProdotto WHERE C.idOrdine = ?";
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setInt(1, ordine.getIdOrdine());
+		ResultSet rs = statement.executeQuery();
+		var prodotti = new ArrayList<Pair<Prodotto,Integer>>();
+		while (rs.next()) {
+			prodotti.add(new Pair<Prodotto, Integer>(new Prodotto(rs.getInt("id"), rs.getString("nome"), rs.getString("descrizione"), getTipoProdotto(rs.getInt("idTipo")), getFasceOrarie(rs.getInt("id")), rs.getDouble("prezzo")), rs.getInt("quantita")));
+		}
+		return prodotti;
+	}
 
 	public List<TipoCliente> getTipiClienti() throws SQLException {
 		String query = "SELECT * FROM TipiClienti";
@@ -525,7 +538,14 @@ public class Query {
 		return ordini;
 	}
 	
-
+	public void setOrdineCompletato(Ordine ordine) throws SQLException {
+		String query = "UPDATE Ordini SET stato = ? WHERE id = ?";
+		int i = 1;
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setInt(i++, Stato.COMPLETATO.ordinal());
+		statement.setInt(i++, ordine.getIdOrdine());
+		statement.executeUpdate();
+	}
 
 
 }
