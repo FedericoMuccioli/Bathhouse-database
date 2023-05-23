@@ -33,7 +33,7 @@ public class MyDefaultTableCellRenderer extends DefaultTableCellRenderer {
 		    for (int row = 0; row < table.getRowCount(); row++) {
 		        var renderer = table.getCellRenderer(row, column);
 		        var component = table.prepareRenderer(renderer, row, column);
-		        width = Math.max(component.getPreferredSize().width + 20, width);
+		        width = Math.max(component.getPreferredSize().width + 40, width);
 		    }
 		    table.getColumnModel().getColumn(column).setPreferredWidth(width + 10);
 		}

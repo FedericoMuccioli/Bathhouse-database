@@ -18,6 +18,7 @@ public class RightPanel extends JPanel {
 		final JButton addBarista = new JButton("Aggiungi barista");
 		final JButton addCliente = new JButton("Aggiungi cliente");
 		final JButton addProdottoBar = new JButton("Aggiungi prodotto bar");
+		final JButton visualOrdiniBar = new JButton("Visualizza ordini bar");
 		
 		addBagnino.addActionListener(l -> new AddDipendente(query, TipoDipendente.Bagnino));
 		addBarista.addActionListener(l -> new AddDipendente(query, TipoDipendente.Barista));
@@ -34,6 +35,13 @@ public class RightPanel extends JPanel {
 				e.printStackTrace();
 			}
 		});
+		visualOrdiniBar.addActionListener(l -> {
+			try {
+				new VisualOrdiniBar(query);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		});
 		
 		var c = new GridBagConstraints();
 		c.gridy=1;
@@ -44,6 +52,8 @@ public class RightPanel extends JPanel {
 		add(addBagnino, c);
 		c.gridy++;
 		add(addProdottoBar, c);
+		c.gridy++;
+		add(visualOrdiniBar, c);
 	}
 
 }

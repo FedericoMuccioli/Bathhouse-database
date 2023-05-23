@@ -12,7 +12,11 @@ public class Prodotto {
     private final double prezzo;
 
     public Prodotto(String nome, String descrizione, TipoProdotto tipo, double prezzo) {
-        this(-1, nome, descrizione, tipo, null, prezzo);
+        this(-1, nome, descrizione, tipo, prezzo);
+    }
+    
+    public Prodotto(int id, String nome, String descrizione, TipoProdotto tipo, double prezzo) {
+        this(id, nome, descrizione, tipo, null, prezzo);
     }
     
     public Prodotto(String nome, String descrizione, TipoProdotto tipo, List<FasciaOraria> fasceOrarie, double prezzo) {

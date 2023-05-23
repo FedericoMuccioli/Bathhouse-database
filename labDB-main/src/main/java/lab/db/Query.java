@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -12,6 +14,8 @@ import java.util.stream.Collectors;
 
 import lab.model.Dipendente;
 import lab.model.FasciaOraria;
+import lab.model.Ordine;
+import lab.model.Ordine.Stato;
 import lab.model.Cliente;
 import lab.model.PrenotazioneOmbrellone;
 import lab.model.PrenotazioneSeduta;
@@ -148,19 +152,19 @@ public class Query {
 		return true;
 	}
 
-//	public boolean insertFasceOrarie(List<FasciaOraria> fasceOrarie) throws SQLException {
-//		for (var fasciaOraria : fasceOrarie) {
-//			String query = "INSERT INTO FasceOrarie (inizio, fine) VALUES (?, ?)";
-//			PreparedStatement statement = connection.prepareStatement(query);
-//			int i = 1;
-//			statement.setTime(i++, fasciaOraria.getInizio());
-//			statement.setTime(i++, fasciaOraria.getFine());
-//			if (statement.executeUpdate() == 0) {
-//				return false;
-//			}
-//		}
-//		return true;
-//	}
+	//	public boolean insertFasceOrarie(List<FasciaOraria> fasceOrarie) throws SQLException {
+	//		for (var fasciaOraria : fasceOrarie) {
+	//			String query = "INSERT INTO FasceOrarie (inizio, fine) VALUES (?, ?)";
+	//			PreparedStatement statement = connection.prepareStatement(query);
+	//			int i = 1;
+	//			statement.setTime(i++, fasciaOraria.getInizio());
+	//			statement.setTime(i++, fasciaOraria.getFine());
+	//			if (statement.executeUpdate() == 0) {
+	//				return false;
+	//			}
+	//		}
+	//		return true;
+	//	}
 
 	public boolean insertDisponibilità(Prodotto prodotto, List<FasciaOraria> fasceOrarie) throws SQLException {
 		for (var fasciaOraria : fasceOrarie) {
@@ -175,7 +179,7 @@ public class Query {
 		}
 		return true;
 	}
-	
+
 	public boolean insertProdotto(Prodotto prodotto) throws SQLException {
 		String query = "INSERT INTO Prodotti (nome, descrizione, idTipo, prezzo) VALUES (?, ?, ?, ?)";
 		PreparedStatement statement = connection.prepareStatement(query);
@@ -270,6 +274,37 @@ public class Query {
 		return true;
 	}
 
+	public int insertOrdine(Ordine ordine) throws SQLException {
+		String query = "INSERT INTO Ordini (dataOrdine, oraConsegna, prezzo, stato, idBarista, numeroOmbrellone, anno, dataInizio) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+		PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+		int i = 1;
+		statement.setDate(i++, Utils.dateToSqlDate(ordine.getDataOrdine()));
+		statement.setTime(i++,  new Time(ordine.getOraConsegna().getTime()));
+		statement.setDouble(i++, ordine.getPrezzo());
+		statement.setInt(i++, ordine.getStato().ordinal());
+		statement.setInt(i++, ordine.getBarista().getCodiceUnivoco());
+		statement.setInt(i++, ordine.getNumeroOmbrellone());
+		statement.setInt(i++, ordine.getAnno());
+		statement.setDate(i++, Utils.dateToSqlDate(ordine.getDataInizio()));
+		statement.executeUpdate();
+		var rs = statement.getGeneratedKeys();
+		if (rs.next()) {
+			return rs.getInt(1);
+		} else {
+			return -1;
+		}
+	}
+
+	public void insertComposizioneOrdine(Ordine ordine, Prodotto prodotto, int qt) throws SQLException {
+		String query = "INSERT INTO ComposizioniOrdini VALUES (?, ?, ?)";
+		PreparedStatement statement = connection.prepareStatement(query);
+		int i = 1;
+		statement.setInt(i++, ordine.getIdOrdine());
+		statement.setInt(i++,  prodotto.getId());
+		statement.setInt(i++, qt);
+		statement.executeUpdate();
+	}
+
 	public boolean removePostazioneOmbrellone(int numeroOmbrellone, int anno, Date dataFine) throws SQLException {
 		String query = "UPDATE PostazioniOmbrelloni SET dataFine = ? WHERE anno = ? AND numeroOmbrellone = ? "
 				+ "AND ((NOT EXISTS (SELECT 1 FROM OmbrelloniConPrenotazione WHERE anno = ? AND numeroOmbrellone = ?)) "
@@ -316,7 +351,7 @@ public class Query {
 		}
 		return bagnini;
 	}
-	
+
 	public List<Dipendente> getBaristi() throws SQLException {
 		String query = "SELECT * FROM Baristi";
 		ResultSet rs = connection.createStatement().executeQuery(query);
@@ -336,7 +371,7 @@ public class Query {
 		}
 		return fasceOrarie;
 	}
-	
+
 	public List<FasciaOraria> getFasceOrarie(int idProdotto) throws SQLException {
 		String query = "SELECT f.* FROM Disponibilita d JOIN FasceOrarie f ON d.idFasciaOraria = f.id WHERE d.idProdotto = ?";
 		PreparedStatement statement = connection.prepareStatement(query);
@@ -348,7 +383,7 @@ public class Query {
 		}
 		return fasceOrarie;
 	}
-	
+
 	public List<Prodotto> getProdotti() throws SQLException {
 		String query = "SELECT * FROM Prodotti";
 		ResultSet rs = connection.createStatement().executeQuery(query);
@@ -388,7 +423,7 @@ public class Query {
 		}
 		return tipiProdotti;
 	}
-	
+
 	public TipoProdotto getTipoProdotto(int id) throws SQLException {
 		String query = "SELECT * FROM TipiProdotto WHERE id = ?";
 		PreparedStatement statement = connection.prepareStatement(query);
@@ -478,6 +513,18 @@ public class Query {
 		}
 		return prenotazioniSeduta;
 	}
+	
+	public List<Ordine> getOrdini() throws SQLException {
+		String query = "SELECT * FROM Ordini o JOIN Baristi b ON (o.idBarista = b.codiceUnivoco) ORDER BY o.id DESC";
+		ResultSet rs = connection.createStatement().executeQuery(query);
+		var ordini = new ArrayList<Ordine>();
+		while (rs.next()) {
+			var barista = new Dipendente(rs.getString("codiceFiscale"), rs.getString("nome"), rs.getString("cognome"), rs.getInt("codiceUnivoco"), rs.getDate("dataDiNascita"), rs.getString("indirizzo"), rs.getString("telefono"));
+			ordini.add(new Ordine(rs.getInt("id"),  rs.getDate("dataOrdine"), rs.getTime("oraConsegna"), rs.getDouble("prezzo"), rs.getInt("stato") == 0 ? Stato.IN_ELABORAZIONE : Stato.COMPLETATO, barista, rs.getInt("numeroOmbrellone"), rs.getInt("anno"), rs.getDate("dataInizio")));
+		}
+		return ordini;
+	}
+	
 
 
 

@@ -56,13 +56,6 @@ public class Pair<X, Y> {
         } else if (!x.equals(other.x)) {
             return false;
         }
-        if (y == null) {
-            if (other.y != null) {
-                return false;
-            }
-        } else if (!y.equals(other.y)) {
-            return false;
-        }
         return true;
     }
 
