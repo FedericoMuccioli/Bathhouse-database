@@ -527,9 +527,13 @@ public class Query {
 		return prenotazioniSeduta;
 	}
 	
-	public List<Ordine> getOrdini() throws SQLException {
-		String query = "SELECT * FROM Ordini o JOIN Baristi b ON (o.idBarista = b.codiceUnivoco) ORDER BY o.id DESC";
-		ResultSet rs = connection.createStatement().executeQuery(query);
+	public List<Ordine> getOrdini(Date inizio, Date fine) throws SQLException {
+		String query = "SELECT * FROM Ordini o JOIN Baristi b ON (o.idBarista = b.codiceUnivoco) WHERE dataOrdine>= ? AND dataOrdine <= ? ORDER BY o.id DESC";
+		int i= 1;
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setDate(i++, Utils.dateToSqlDate(inizio));
+		statement.setDate(i++, Utils.dateToSqlDate(fine));
+		ResultSet rs = statement.executeQuery();
 		var ordini = new ArrayList<Ordine>();
 		while (rs.next()) {
 			var barista = new Dipendente(rs.getString("codiceFiscale"), rs.getString("nome"), rs.getString("cognome"), rs.getInt("codiceUnivoco"), rs.getDate("dataDiNascita"), rs.getString("indirizzo"), rs.getString("telefono"));

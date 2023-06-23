@@ -5,6 +5,7 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -36,7 +37,7 @@ public class VisualOrdiniBar extends JDialog {
 	private final DefaultTableModel tableModel2;
 	
 
-	public VisualOrdiniBar(final Query query) throws SQLException {
+	public VisualOrdiniBar(final Query query, Date inizio, Date fine) throws SQLException {
 		setTitle("Ordini Bar");
 		setPreferredSize(new Dimension(800,300));
 		var cardLayout = new CardLayout();
@@ -57,7 +58,7 @@ public class VisualOrdiniBar extends JDialog {
 		tableModel.addColumn("prezzo");
 		tableModel.addColumn("barista");
 		tableModel.addColumn("stato");
-		ordini = query.getOrdini();
+		ordini = query.getOrdini(inizio, fine);
 		filteredOrdini = ordini;
 		loadOrdiniList(ordini);
 		MyDefaultTableCellRenderer.resizeAndCenterTable(table);

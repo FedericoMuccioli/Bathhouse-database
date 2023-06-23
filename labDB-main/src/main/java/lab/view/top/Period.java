@@ -8,11 +8,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import lab.db.Query;
+import lab.utils.Pair;
 import lab.view.center.Grid;
 import lab.view.utilities.MyJDateChooser;
 
 import java.awt.GridBagLayout;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,6 +71,10 @@ public class Period extends JPanel {
 		button.doClick();
 	}
 	
+	public Pair<Date,Date> getPeriod(){
+		return new Pair<Date,Date>(inizioCalendar.getDate(), fineCalendar.getDate());
+	}
+	
 	private void updateStagioni() {
 		try {
 			List<String> stagioni = query.getStagioni().stream().map(Object::toString).collect(Collectors.toList());
@@ -90,5 +96,7 @@ public class Period extends JPanel {
 			fineCalendar.setYear(year);
 		}
 	}
+	
+	
 
 }

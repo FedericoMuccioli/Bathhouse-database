@@ -8,10 +8,11 @@ import javax.swing.JPanel;
 
 import lab.db.Query;
 import lab.model.Dipendente.TipoDipendente;
+import lab.view.top.Period;
 
 public class RightPanel extends JPanel {
 	
-	public RightPanel(Query query) {
+	public RightPanel(Query query, Period period) {
 		setLayout(new GridBagLayout());
 		
 		final JButton addBagnino = new JButton("Aggiungi bagnino");
@@ -37,7 +38,8 @@ public class RightPanel extends JPanel {
 		});
 		visualOrdiniBar.addActionListener(l -> {
 			try {
-				new VisualOrdiniBar(query);
+				var datePeriod = period.getPeriod();
+				new VisualOrdiniBar(query, datePeriod.getX(), datePeriod.getY());
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
