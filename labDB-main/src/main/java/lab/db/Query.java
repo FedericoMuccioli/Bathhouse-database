@@ -384,10 +384,13 @@ public class Query {
 		}
 		return fasceOrarie;
 	}
+	
 
-	public List<Prodotto> getProdotti() throws SQLException {
-		String query = "SELECT * FROM Prodotti";
-		ResultSet rs = connection.createStatement().executeQuery(query);
+	public List<Prodotto> getProdotti(int hour, int minute) throws SQLException {
+		String query = "SELECT P.* FROM Prodotti P LEFT JOIN Disponibilita D ON P.id = D.idProdotto LEFT JOIN FasceOrarie F ON D.idFasciaOraria = F.id WHERE F.inizio IS NULL OR (? BETWEEN F.inizio AND F.fine)";
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setTime(1, new Time(hour, minute, 0));
+		ResultSet rs = statement.executeQuery();
 		var prodotti = new ArrayList<Prodotto>();
 		while (rs.next()) {
 			prodotti.add(new Prodotto(rs.getInt("id"), rs.getString("nome"), rs.getString("descrizione"), getTipoProdotto(rs.getInt("idTipo")), getFasceOrarie(rs.getInt("id")), rs.getDouble("prezzo")));

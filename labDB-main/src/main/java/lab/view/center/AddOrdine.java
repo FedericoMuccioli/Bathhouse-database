@@ -63,12 +63,15 @@ public class AddOrdine extends JDialog {
 	private List<Prodotto> prodotti;
 	private List<Prodotto> filteredProdotti;
 	private DefaultTableModel tableModel;
+	private Query query;
+	private JSpinnerDateEditor consegna;
 
 
 	public AddOrdine(Query query, int anno, int numeroOmbrellone, final Date dataInizio) throws SQLException {
 		setPreferredSize(new Dimension(800,500));
 		setTitle("Ordinazione ombr:" + String.valueOf(numeroOmbrellone));
 
+		this.query = query;
 		var cardLayout = new CardLayout();
 		var panel = new JPanel(cardLayout);
 
@@ -102,7 +105,7 @@ public class AddOrdine extends JDialog {
 		var panel1 = new JPanel(new GridBagLayout());
 		var topPanel = new JPanel(new GridBagLayout());
 		var consegnaLabel = new JLabel("Ora consegna:");
-		var consegna = new JSpinnerDateEditor();
+		consegna = new JSpinnerDateEditor();
 		consegna.setEditor(new JSpinnerDateEditor.DateEditor(consegna, "HH:mm"));
 		consegna.setValue(Calendar.getInstance().getTime());
 		var totaleLabel = new JLabel("Totale:");
@@ -134,7 +137,7 @@ public class AddOrdine extends JDialog {
 		tableModel.addColumn("tipo");
 		tableModel.addColumn("descrizione");
 		tableModel.addColumn("prezzo");
-		prodotti = query.getProdotti();
+		prodotti = getProdottiByFasciaOraria();
 		filteredProdotti= prodotti;
 		loadProdottiList(prodotti);
 		MyDefaultTableCellRenderer.resizeAndCenterTable(table);
@@ -175,7 +178,17 @@ public class AddOrdine extends JDialog {
 			}
 		});
 
-
+		
+		consegna.addChangeListener(e -> {
+			try {
+				prodotti = getProdottiByFasciaOraria();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			filteredProdotti= prodotti;
+			loadProdottiList(prodotti);
+		});
+		
 
 		ordina.addActionListener( al -> {
 			if (carrello.getSize() == 0) {
@@ -275,6 +288,15 @@ public class AddOrdine extends JDialog {
 			Object[] rowData = {p.getId(), p.getNome(), p.getTipo(), p.getDescrizione(), p.getPrezzo()};
 			tableModel.addRow(rowData);
 		}
+	}
+	
+	private List<Prodotto> getProdottiByFasciaOraria() throws SQLException{
+		Date selectedTime = (Date) consegna.getValue();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(selectedTime);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+        return query.getProdotti(hour, minute);
 	}
 
 }
