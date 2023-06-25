@@ -469,14 +469,13 @@ public class Query {
 				+ " JOIN TipiClienti T ON Cl.codiceTipoCliente = T.codiceTipoCliente"
 				+ " JOIN Composizioni C ON O.numeroOmbrellone = C.numeroOmbrellone AND O.anno = C.anno AND O.dataInizio = C.dataInizio"
 				+ " JOIN TipiSedute Ts ON C.codiceTipoSeduta = Ts.codiceTipoSeduta"
-				+ " WHERE O.anno = ? AND O.numeroOmbrellone = ? AND NOT ((O.dataFine < ?) OR (O.dataInizio > ?))"
+				+ " WHERE O.anno = ? AND O.numeroOmbrellone = ? AND NOT (O.dataFine < ? OR O.dataInizio > ?)"
 				+ " GROUP BY O.numeroOmbrellone, O.anno, O.dataInizio, O.dataFine";
 		int i = 1;
 		PreparedStatement statement = connection.prepareStatement(query);
 		statement.setInt(i++, anno);
 		statement.setInt(i++, numeroOmbrellone);
 		statement.setDate(i++, Utils.dateToSqlDate(dataInizio));
-		
 		statement.setDate(i++, Utils.dateToSqlDate(dataFine));
 		ResultSet rs = statement.executeQuery();
 		var prenotazioniOmbrellone = new ArrayList<PrenotazioneOmbrellone>();
@@ -512,7 +511,7 @@ public class Query {
 				+ " JOIN Bagnini B ON O.codiceUnivocoBagnino = B.codiceUnivoco"
 				+ " JOIN TipiClienti T ON Cl.codiceTipoCliente = T.codiceTipoCliente"
 				+ " JOIN TipiSedute Ts ON O.codiceTipoSeduta = Ts.codiceTipoSeduta"
-				+ " WHERE O.anno = ? AND O.numeroSeduta = ? AND NOT ((O.dataInizio < ? AND O.dataFine < ?) OR (O.dataInizio > ? AND O.dataFine > ?))";
+				+ " WHERE O.anno = ? AND O.numeroSeduta = ? AND NOT (O.dataFine < ? OR O.dataInizio > ?)";
 		int i = 1;
 		PreparedStatement statement = connection.prepareStatement(query);
 		statement.setInt(i++, anno);
