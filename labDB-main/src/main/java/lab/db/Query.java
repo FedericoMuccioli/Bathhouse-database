@@ -26,7 +26,7 @@ import lab.model.TipoProdotto;
 import lab.model.TipoSeduta;
 import lab.utils.Pair;
 import lab.utils.Utils;
-import lab.view.center.Grid.Postazione;
+import lab.view.center.Grid.PostazioneStatus;
 
 public class Query {
 
@@ -36,29 +36,7 @@ public class Query {
 		this.connection = connection;
 	}
 
-	public boolean isOmbrellonePiantato(int numeroOmbrellone, int anno, Date dataInizio, Date dataFine) throws SQLException {
-		String query = "SELECT * FROM PostazioniOmbrelloni WHERE anno = ? AND numeroOmbrellone = ? AND dataInizio <= ? AND (dataFine >= ? OR dataFine is null)";
-		PreparedStatement statement = connection.prepareStatement(query);
-		statement.setInt(1, anno);
-		statement.setInt(2, numeroOmbrellone);
-		statement.setDate(3, Utils.dateToSqlDate(dataInizio));
-		statement.setDate(4, Utils.dateToSqlDate(dataFine));
-		return statement.executeQuery().next();
-	}
-
-	public boolean isOmbrellonePrenotato(int numeroOmbrellone, int anno, Date dataInizio, Date dataFine) throws SQLException {
-		String query = "SELECT * FROM OmbrelloniConPrenotazione WHERE anno = ? AND numeroOmbrellone = ? AND NOT ((dataInizio < ? AND dataFine < ?) OR (dataInizio > ? AND dataFine > ?))";
-		PreparedStatement statement = connection.prepareStatement(query);
-		statement.setInt(1, anno);
-		statement.setInt(2, numeroOmbrellone);
-		statement.setDate(3, Utils.dateToSqlDate(dataInizio));
-		statement.setDate(4, Utils.dateToSqlDate(dataInizio));
-		statement.setDate(5, Utils.dateToSqlDate(dataFine));
-		statement.setDate(6, Utils.dateToSqlDate(dataFine));
-		return statement.executeQuery().next();
-	}
-
-	public Postazione getPostazioneStatus(int numeroOmbrellone, int anno, Date dataInizio, Date dataFine) throws SQLException {
+	public PostazioneStatus getPostazioneOmbrelloneStatus(int numeroOmbrellone, int anno, Date dataInizio, Date dataFine) throws SQLException {
 		String query = "SELECT * FROM PostazioniOmbrelloni P"
 				+ " LEFT JOIN OmbrelloniConPrenotazione O ON P.anno = O.anno AND P.numeroOmbrellone = O.numeroOmbrellone"
 				+ " AND NOT ((O.dataInizio < ? AND O.dataFine < ?) OR (O.dataInizio > ? AND O.dataFine > ?))"
@@ -74,19 +52,16 @@ public class Query {
 		statement.setDate(i++, Utils.dateToSqlDate(dataInizio));
 		statement.setDate(i++, Utils.dateToSqlDate(dataFine));
 		var resultSet = statement.executeQuery();
-		Postazione postazioneStatus;
+		PostazioneStatus postazioneStatus;
 		if (resultSet.next()) {
 		    String cf = resultSet.getString("codiceFiscaleCliente");
 		    if (cf == null) {
-		        // L'istanza di OmbrelloniConPrenotazione è nulla
-		    	postazioneStatus = Postazione.DISPONIBILE;
+		    	postazioneStatus = PostazioneStatus.DISPONIBILE;
 		    } else {
-		        // L'istanza di OmbrelloniConPrenotazione non è nulla
-		    	postazioneStatus = Postazione.NON_DISPONIBILE;
+		    	postazioneStatus = PostazioneStatus.NON_DISPONIBILE;
 		    }
 		} else {
-		    // Non ci sono istanze di PostazioniOmbrelloni
-			postazioneStatus = Postazione.NON_PRESENTE;
+			postazioneStatus = PostazioneStatus.NON_PRESENTE;
 		}
 		return postazioneStatus;
 	}
