@@ -12,6 +12,7 @@ import lab.db.Query;
 
 public class Grid extends JPanel {
 
+	public enum Postazione {NON_PRESENTE, DISPONIBILE, NON_DISPONIBILE};
 	private final Query query;
 	private final JButton[][] grid;
 	private int anno;
@@ -67,21 +68,23 @@ public class Grid extends JPanel {
 				if(!b.getText().isBlank()) {
 					b.setOpaque(true);
 					removeAllActionListener(b);
-					boolean isOmbrellonePiantato;
-					boolean isOmbrellonePrenotato;
+					Postazione postazioneStatus;
 					try {
-						isOmbrellonePiantato = query.isOmbrellonePiantato(Integer.parseInt(b.getText()), anno, dataInizio, dataFine);
-						isOmbrellonePrenotato = query.isOmbrellonePrenotato(Integer.parseInt(b.getText()), anno, dataInizio, dataFine);
+						postazioneStatus = query.getPostazioneStatus(Integer.parseInt(b.getText()), anno, dataInizio, dataFine);
 					} catch (NumberFormatException | SQLException e1) {
 						e1.printStackTrace();
 						break;
 					}
-					if (isOmbrellonePiantato && !isOmbrellonePrenotato) {
+					if (postazioneStatus == Postazione.DISPONIBILE) {
 						b.setBackground(Color.GREEN);
 						b.addActionListener(l -> new AddOmbrelloneConPrenotazione(this, query,
 								Integer.parseInt(b.getText()), anno, dataInizio, dataFine));
 					} else {
-						b.setBackground(Color.RED);
+						if (postazioneStatus == Postazione.NON_DISPONIBILE) {
+							b.setBackground(Color.RED);
+						} else if (postazioneStatus == Postazione.NON_PRESENTE) {
+							b.setBackground(Color.BLACK);
+						}
 						b.addActionListener(l -> {
 							try {
 								new VisualOmbrelloneConPrenotazione(query, Integer.parseInt(b.getText()), anno, dataInizio, dataFine);
@@ -89,7 +92,7 @@ public class Grid extends JPanel {
 								throw new IllegalStateException();
 							}
 						});
-					}
+					}					
 				}
 			}
 		}

@@ -26,6 +26,7 @@ import lab.model.TipoProdotto;
 import lab.model.TipoSeduta;
 import lab.utils.Pair;
 import lab.utils.Utils;
+import lab.view.center.Grid.Postazione;
 
 public class Query {
 
@@ -57,6 +58,39 @@ public class Query {
 		return statement.executeQuery().next();
 	}
 
+	public Postazione getPostazioneStatus(int numeroOmbrellone, int anno, Date dataInizio, Date dataFine) throws SQLException {
+		String query = "SELECT * FROM PostazioniOmbrelloni P"
+				+ " LEFT JOIN OmbrelloniConPrenotazione O ON P.anno = O.anno AND P.numeroOmbrellone = O.numeroOmbrellone"
+				+ " AND NOT ((O.dataInizio < ? AND O.dataFine < ?) OR (O.dataInizio > ? AND O.dataFine > ?))"
+				+ " WHERE P.anno = ? AND P.numeroOmbrellone = ? AND P.dataInizio <= ? AND (P.dataFine >= ? OR P.dataFine is null)";
+		PreparedStatement statement = connection.prepareStatement(query);
+		int i = 1;
+		statement.setDate(i++, Utils.dateToSqlDate(dataInizio));
+		statement.setDate(i++, Utils.dateToSqlDate(dataInizio));
+		statement.setDate(i++, Utils.dateToSqlDate(dataFine));
+		statement.setDate(i++, Utils.dateToSqlDate(dataFine));
+		statement.setInt(i++, anno);
+		statement.setInt(i++, numeroOmbrellone);
+		statement.setDate(i++, Utils.dateToSqlDate(dataInizio));
+		statement.setDate(i++, Utils.dateToSqlDate(dataFine));
+		var resultSet = statement.executeQuery();
+		Postazione postazioneStatus;
+		if (resultSet.next()) {
+		    String cf = resultSet.getString("codiceFiscaleCliente");
+		    if (cf == null) {
+		        // L'istanza di OmbrelloniConPrenotazione è nulla
+		    	postazioneStatus = Postazione.DISPONIBILE;
+		    } else {
+		        // L'istanza di OmbrelloniConPrenotazione non è nulla
+		    	postazioneStatus = Postazione.NON_DISPONIBILE;
+		    }
+		} else {
+		    // Non ci sono istanze di PostazioniOmbrelloni
+			postazioneStatus = Postazione.NON_PRESENTE;
+		}
+		return postazioneStatus;
+	}
+
 	public boolean isSedutaPrenotata(int numeroSeduta, int anno, Date dataInizio, Date dataFine) throws SQLException {
 		String query = "SELECT * FROM SeduteConPrenotazioni WHERE anno = ? AND numeroSeduta = ? AND NOT ((dataInizio < ? AND dataFine < ?) OR (dataInizio > ? AND dataFine > ?))";
 		PreparedStatement statement = connection.prepareStatement(query);
@@ -68,7 +102,7 @@ public class Query {
 		statement.setDate(6, Utils.dateToSqlDate(dataFine));
 		return statement.executeQuery().next();
 	}
-
+	
 	public List<PostazioneOmbrellone> getOmbrelloniPiantati(int anno) throws SQLException {
 		String query = "SELECT * FROM PostazioniOmbrelloni WHERE anno = ?";
 		PreparedStatement statement = connection.prepareStatement(query);
@@ -196,7 +230,7 @@ public class Query {
 	}
 
 	public void insertPostazioneOmbrellone(int numeroOmbrellone, int fila, int colonna, int anno, Date dataInizio) throws SQLException {
-		String query = "INSERT INTO PostazioniOmbrelloni (anno, numeroOmbrellone, dataInizio, fila, colonna) SELECT ?, ?, ?, ?, ? WHERE 100 >= (SELECT COUNT(*) FROM PostazioniOmbrelloni WHERE anno = ?)";
+		String query = "INSERT INTO PostazioniOmbrelloni (anno, numeroOmbrellone, dataInizio, fila, colonna) SELECT ?, ?, ?, ?, ? WHERE 100 > (SELECT COUNT(*) FROM PostazioniOmbrelloni WHERE anno = ?)";
 		PreparedStatement statement = connection.prepareStatement(query);
 		statement.setInt(1, anno);
 		statement.setInt(2, numeroOmbrellone);
