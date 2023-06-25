@@ -39,13 +39,11 @@ public class Query {
 	public PostazioneStatus getPostazioneOmbrelloneStatus(int numeroOmbrellone, int anno, Date dataInizio, Date dataFine) throws SQLException {
 		String query = "SELECT * FROM PostazioniOmbrelloni P"
 				+ " LEFT JOIN OmbrelloniConPrenotazione O ON P.anno = O.anno AND P.numeroOmbrellone = O.numeroOmbrellone"
-				+ " AND NOT ((O.dataInizio < ? AND O.dataFine < ?) OR (O.dataInizio > ? AND O.dataFine > ?))"
+				+ " AND NOT (O.dataFine < ? OR O.dataInizio > ?)"
 				+ " WHERE P.anno = ? AND P.numeroOmbrellone = ? AND P.dataInizio <= ? AND (P.dataFine >= ? OR P.dataFine is null)";
 		PreparedStatement statement = connection.prepareStatement(query);
 		int i = 1;
 		statement.setDate(i++, Utils.dateToSqlDate(dataInizio));
-		statement.setDate(i++, Utils.dateToSqlDate(dataInizio));
-		statement.setDate(i++, Utils.dateToSqlDate(dataFine));
 		statement.setDate(i++, Utils.dateToSqlDate(dataFine));
 		statement.setInt(i++, anno);
 		statement.setInt(i++, numeroOmbrellone);
@@ -471,15 +469,14 @@ public class Query {
 				+ " JOIN TipiClienti T ON Cl.codiceTipoCliente = T.codiceTipoCliente"
 				+ " JOIN Composizioni C ON O.numeroOmbrellone = C.numeroOmbrellone AND O.anno = C.anno AND O.dataInizio = C.dataInizio"
 				+ " JOIN TipiSedute Ts ON C.codiceTipoSeduta = Ts.codiceTipoSeduta"
-				+ " WHERE O.anno = ? AND O.numeroOmbrellone = ? AND NOT ((O.dataInizio < ? AND O.dataFine < ?) OR (O.dataInizio > ? AND O.dataFine > ?))"
+				+ " WHERE O.anno = ? AND O.numeroOmbrellone = ? AND NOT ((O.dataFine < ?) OR (O.dataInizio > ?))"
 				+ " GROUP BY O.numeroOmbrellone, O.anno, O.dataInizio, O.dataFine";
 		int i = 1;
 		PreparedStatement statement = connection.prepareStatement(query);
 		statement.setInt(i++, anno);
 		statement.setInt(i++, numeroOmbrellone);
 		statement.setDate(i++, Utils.dateToSqlDate(dataInizio));
-		statement.setDate(i++, Utils.dateToSqlDate(dataInizio));
-		statement.setDate(i++, Utils.dateToSqlDate(dataFine));
+		
 		statement.setDate(i++, Utils.dateToSqlDate(dataFine));
 		ResultSet rs = statement.executeQuery();
 		var prenotazioniOmbrellone = new ArrayList<PrenotazioneOmbrellone>();

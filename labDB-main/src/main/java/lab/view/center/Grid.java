@@ -72,7 +72,6 @@ public class Grid extends JPanel {
 					try {
 						postazioneStatus = query.getPostazioneOmbrelloneStatus(Integer.parseInt(b.getText()), anno, dataInizio, dataFine);
 					} catch (NumberFormatException | SQLException e1) {
-						e1.printStackTrace();
 						break;
 					}
 					if (postazioneStatus == PostazioneStatus.DISPONIBILE) {
