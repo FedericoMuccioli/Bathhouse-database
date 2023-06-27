@@ -1,78 +1,18 @@
-/*Aggiunta tipi clienti*/
-INSERT INTO tipiClienti
-VALUES (1, 'Residente', 'Cliente del luogo, che abita a poca distanza dal bagnino.')
-;
-INSERT INTO tipiClienti
-VALUES (2, 'Turista', 'Cliente in vacanza che abita distante.')
-;
+/*
+-- Istanze
+*/
+INSERT INTO `TipiSedute` (`codiceTipoSeduta`,`nome`,`descrizione`) VALUES (1,'Lettino','Realizzato con materiali di alta qualità, il lettino offre un\'ampia superficie di riposo imbottita, che consente di distendersi comodamente e godere di una rilassante giornata sulla spiaggia.');
+INSERT INTO `TipiSedute` (`codiceTipoSeduta`,`nome`,`descrizione`) VALUES (2,'Sedia','Le sdraio sono un\'opzione versatile e comoda per coloro che preferiscono un\'esperienza più informale sulla spiaggia.');
+INSERT INTO `TipiSedute` (`codiceTipoSeduta`,`nome`,`descrizione`) VALUES (3,'Sdraio','Le sedie offrono un\'alternativa confortevole e pratica per i visitatori che desiderano sedersi in modo più eretto e mantenere una postura più formale.');
 
-/*Aggiunta tipi sedute*/
-INSERT INTO tipiSedute
-VALUES (1, 'Lettino', 'Lettino con schienale e parasole, possibilità di posizionare la seduta con tre inclinazioni.')
-;
-INSERT INTO tipiSedute
-VALUES (2, 'Sedia', 'Comoda sedia.')
-;
-INSERT INTO tipiSedute
-VALUES (3, 'Sdraio', 'Comoda sdraio con 3 inclinazioni.')
-;
+INSERT INTO `TipiProdotto` (`id`,`tipo`,`descrizione`) VALUES (1,'Bevanda','Rinfrescati con la nostra bevanda speciale, una deliziosa combinazione di ingredienti selezionati per soddisfare la tua sete.');
+INSERT INTO `TipiProdotto` (`id`,`tipo`,`descrizione`) VALUES (2,'Snack','Delizia il tuo palato con il nostro snack irresistibile, una prelibatezza che ti regalerà un\'esplosione di sapori.');
+INSERT INTO `TipiProdotto` (`id`,`tipo`,`descrizione`) VALUES (3,'Piatto',' Il nostro piatto delizioso è una vera festa per gli occhi e per il palato.');
+INSERT INTO `TipiProdotto` (`id`,`tipo`,`descrizione`) VALUES (4,'Gelato','Goditi un momento di puro piacere con il nostro gelato artigianale.');
 
-/*Aggiunta numeri ombrelloni*/
-INSERT INTO ombrelloni
-VALUES (1)
-;
-INSERT INTO ombrelloni
-VALUES (2)
-;
+INSERT INTO `TipiClienti` (`codiceTipoCliente`,`nome`,`descrizione`) VALUES (1,'Turista','Si riferisce a una persona che visita una determinata destinazione per motivi di vacanza, esplorazione o svago.');
+INSERT INTO `TipiClienti` (`codiceTipoCliente`,`nome`,`descrizione`) VALUES (2,'Residente','Si riferisce a una persona che vive stabilmente o ha una residenza nella destinazione in questione.');
 
-/*Aggiunta anno*/
-INSERT INTO spiagge
-VALUES (2022)
-;
-
-/*Registrazione bagnini*/
-INSERT INTO bagnini
-VALUES ('VBLVNC00H47H294X', 'Veronica', 'Vibali', 1, '2000-06-07', 'Viale Dardelli 18', '393940526394')
-;
-
-/*Registrazione clienti*/
-INSERT INTO clienti
-VALUES ('RSSFPP95E05H294J', 'Filippo', 'Rossini', 'FiloRos', '396553953587', 1)
-;
-INSERT INTO clienti
-VALUES ('RSSVNT80A01F839K', 'Valentino', 'Rossi', 'Vale', '396553953587', 1)
-;
-INSERT INTO clienti (codiceFiscale, nome, cognome, nominativo, codiceTipoCliente)
-VALUES ('VRDLCU80A41H501K', 'Lucia', 'Verdi', 'Lucy', 1)
-;
-
-/*Aggiunta postazioni ombrelloni*/
-INSERT INTO PostazioniOmbrelloni
-SELECT 2022, 1, '2022-06-01', '2022-09-01', 1, 1
-WHERE 100 >= (SELECT COUNT(*)
-			  FROM PostazioniOmbrelloni
-			  WHERE anno = 2022)
-;
-INSERT INTO PostazioniOmbrelloni
-SELECT 2022, 2, '2022-07-01', '2022-09-01', 1, 2
-WHERE 100 >= (SELECT COUNT(*)
-			  FROM PostazioniOmbrelloni
-			  WHERE anno = 2022)
-;
-
-/*Aggiunta prenotazioni*/
-INSERT INTO OmbrelloniConPrenotazione
-VALUES (1, 2022, '2022-06-01', '2022-06-30', 120, 'RSSFPP95E05H294J', 1)
-;
-INSERT INTO Composizioni
-VALUES (1, 2022, '2022-06-01', 1, 2)
-;
-INSERT INTO OmbrelloniConPrenotazione
-VALUES (2, 2022, '2022-07-01', '2022-08-01', 120, 'RSSFPP95E05H294J', 1)
-;
-INSERT INTO Composizioni
-VALUES (2, 2022, '2022-07-01', 1, 2)
-;
-INSERT INTO Composizioni
-VALUES (2, 2022, '2022-07-01', 2, 2)
-;
+INSERT INTO `FasceOrarie` (`id`,`inizio`,`fine`) VALUES (1,'07:00:00','10:00:00');
+INSERT INTO `FasceOrarie` (`id`,`inizio`,`fine`) VALUES (2,'12:00:00','15:00:00');
+INSERT INTO `FasceOrarie` (`id`,`inizio`,`fine`) VALUES (3,'19:00:00','21:00:00');

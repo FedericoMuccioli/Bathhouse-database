@@ -129,7 +129,7 @@ public class AddOrdine extends JDialog {
 		table = new JTable(tableModel);
 		var scrollPaneTable = new JScrollPane(table);
 		var d = new Dimension(500, 100);
-		table.setPreferredSize(d);
+//		table.setPreferredSize(d);
 		scrollPaneTable.setPreferredSize(d);
 		table.getTableHeader().setDefaultRenderer(new MyDefaultTableCellRenderer());
 		tableModel.addColumn("id");
@@ -145,12 +145,6 @@ public class AddOrdine extends JDialog {
 
 		table.getSelectionModel().addListSelectionListener(e -> {
 			if (!e.getValueIsAdjusting() && table.getSelectedRow() != -1) {
-				//				int id = (int) tableModel.getValueAt(table.getSelectedRow(), 0);
-				//				String nome = (String) tableModel.getValueAt(table.getSelectedRow(), 1);
-				//				TipoProdotto tipo = (TipoProdotto) tableModel.getValueAt(table.getSelectedRow(), 2);
-				//				String descrizione = (String) tableModel.getValueAt(table.getSelectedRow(), 3);
-				//				Double prezzo = (Double) tableModel.getValueAt(table.getSelectedRow(), 4);
-				//				prodotto = new Prodotto(id, nome, descrizione, tipo, prezzo);
 				prodotto = filteredProdotti.get(table.getSelectedRow());
 				prodottoLabel.setText(prodotto.toString());
 				cardLayout.last(panel);

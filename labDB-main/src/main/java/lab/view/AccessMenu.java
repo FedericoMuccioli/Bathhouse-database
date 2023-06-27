@@ -16,8 +16,8 @@ public class AccessMenu extends JPanel {
 		setLayout(new GridBagLayout());
 		
 		final JTextField root = new JTextField("root");
-		final JTextField password = new JTextField("password");
-		final JTextField nomeDatabase = new JTextField("StabilimentoBalneare");
+		final JTextField password = new JTextField("Federico320302.");
+		final JTextField nomeDatabase = new JTextField("StabilimentoBalneare2");
 		final JLabel alert = new JLabel();
 		
 		final var button = new JButton("CONNETTI");

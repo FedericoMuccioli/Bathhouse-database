@@ -517,8 +517,6 @@ public class Query {
 		statement.setInt(i++, anno);
 		statement.setInt(i++, numeroSeduta);
 		statement.setDate(i++, Utils.dateToSqlDate(dataInizio));
-		statement.setDate(i++, Utils.dateToSqlDate(dataInizio));
-		statement.setDate(i++, Utils.dateToSqlDate(dataFine));
 		statement.setDate(i++, Utils.dateToSqlDate(dataFine));
 		ResultSet rs = statement.executeQuery();
 		var prenotazioniSeduta = new ArrayList<PrenotazioneSeduta>();

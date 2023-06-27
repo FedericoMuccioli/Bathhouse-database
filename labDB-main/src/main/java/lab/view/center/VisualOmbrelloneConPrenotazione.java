@@ -49,25 +49,32 @@ public class VisualOmbrelloneConPrenotazione extends JDialog {
 		} catch (Exception e) {
 			alert.setText("Riprovare, errore nell'esecuzione della query");
 		}
-		
-		
+
+
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-		    @Override
-		    public void valueChanged(ListSelectionEvent e) {
-		        if (!e.getValueIsAdjusting()) {
-		            int selectedRow = table.getSelectedRow();
-		            if (selectedRow != -1) {
-		            	try {
-							new AddOrdine(query, anno, numeroOmbrellone, (Date) tableModel.getValueAt(selectedRow, 0));
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				if (!e.getValueIsAdjusting()) {
+					int selectedRow = table.getSelectedRow();
+					if (selectedRow != -1) {
+						try {
+							var dataInizio = (Date) tableModel.getValueAt(selectedRow, 0);
+							var dataFine = (Date) tableModel.getValueAt(selectedRow, 1);
+							var dataOggi = new Date();
+							if (dataOggi.compareTo(dataInizio) >= 0 && dataFine.compareTo(dataOggi) >= 0) {
+								new AddOrdine(query, anno, numeroOmbrellone, dataInizio);
+							} else {
+								alert.setText("La data dell'ordine è diversa dal periodo di affitto");
+							}
 						} catch (SQLException e1) {
 							alert.setText("Errore, riprovare");
 						}
-		            }
-		        }
-		    }
+					}
+				}
+			}
 		});
-		
-		
+
+
 		panel.add(new JScrollPane(table));
 		panel.add(alert, BorderLayout.SOUTH);
 		add(panel);
