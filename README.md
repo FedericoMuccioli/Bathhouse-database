@@ -9,4 +9,4 @@ ___
 ## **NOTE**
 
 There is a **report** (in Italian) which explains in detail the organization, structure and operation of the entire project.
-The project is **still in progress for more implementations**.
+
